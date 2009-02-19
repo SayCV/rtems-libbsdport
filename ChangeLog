@@ -1,5 +1,11 @@
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
 
+	* bsd_eth_drivers/if_em/e1000_manage.c,
+	bsd_eth_drivers/if_em/e1000_manage.h: New files.
+	Missed in initial import.
+
+2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
+
 	* .cvsignore: Add Makefile.in
 
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
