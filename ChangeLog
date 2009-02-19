@@ -1,5 +1,9 @@
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
 
+	* .cvsignore: Add Makefile.in
+
+2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
+
 	* configure.ac, makefile.top.in: Do not have bge driver yet.
 
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
