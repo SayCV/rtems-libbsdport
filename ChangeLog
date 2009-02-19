@@ -1,5 +1,9 @@
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
 
+	* bsd_eth_drivers/libbsdport/sysbus.c: Revert Till's patch.
+
+2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
+
 	* bsd_eth_drivers/if_em/e1000_manage.c,
 	bsd_eth_drivers/if_em/e1000_manage.h: New files.
 	Missed in initial import.
