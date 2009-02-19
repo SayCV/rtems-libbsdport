@@ -1,0 +1,53 @@
+HOW TO BUILD THE SSRL RTEMS-APPLICATIONS
+
+$Id$
+
+Till Straumann, 2008/10/3
+
+***************************************************
+THIS FILE HAS NOT BEEN WRITTEN YET, SORRY!
+
+Some useful information regarding 'configure' options
+can be found in cexp/INSTALL.
+
+Basic instructions:
+
+ - make sure PATH contains toolchain directory
+ - mkdir build
+ - chdir build
+ - ../configure --with-rtems-top=/afs/slac/package/rtems/<version> \
+                --prefix=/afs/slac/package/rtems/<version>
+ - make
+ - make install
+
+This builds ssrlApps for all architectures/BSPs which are installed
+under --with-rtems-top. The list of BSPs can be explicitly defined
+using --with-rtemsbsp='bsp1 bsp2 bsp3 ...'.
+
+The default installation path for binaries, libraries and includes is
+
+ <prefix>/target/ssrlApps/<cpu>-rtems/<bsp>/bin
+ <prefix>/target/ssrlApps/<cpu>-rtems/<bsp>/lib
+ <prefix>/target/ssrlApps/<cpu>-rtems/<bsp>/include
+
+but can be modified using the standard --exec-prefix, --libdir, --includedir
+options (see 'configure' documentation and cexp/INSTALL).
+
+Other useful options:
+
+    --enable-std-rtems-installdirs
+            Install directly into the RTEMS installation directories;
+			by default a location *outside* of the standard location
+			is used. If you don't use this option you can also fine-tune
+			the installation using the usual --prefix, --exec-prefix,
+			--libdir, --includedir etc. options. If you use this
+			option '--prefix' & friends are effectively overridden.
+
+	--with-hostbindir=<path>
+			Where tools, i.e., programs that execute on the development
+			platform are to be installed. Defaults to
+
+			   PREFIX/host/${build_alias}/bin
+
+
+***************************************************

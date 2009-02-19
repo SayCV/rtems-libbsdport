@@ -1,0 +1,41 @@
+if OS_IS_RTEMS
+RTEMS_BSP     = @rtems_bsp@
+# CC           += @rtems_gccspecs@
+# AM_CFLAGS    += @rtems_cpu_cflags@
+# CXX          += @rtems_gccspecs@
+# AM_CXXFLAGS  += @rtems_cpu_cflags@
+# CCAS         += @rtems_gccspecs@
+# AM_CCASFLAGS += @rtems_cpu_asflags@
+# CPP          += @rtems_gccspecs@
+# AM_CPPFLAGS  += @rtems_cppflags@ 
+AM_CPPFLAGS   += -I$(top_builddir)/data/include
+AM_LDFLAGS    += -L$(top_builddir)/data/lib
+endif
+
+
+OBJLINK=$(CCLD) -nostdlib -Wl,-r -o $@
+OBJEXEEXT=.obj
+
+# Where tools that run on the host go
+#FIXME: where to put these?
+exechostbindir=$(hostbindir)
+
+include_bspdir=$(includedir)/bsp
+include_sysdir=$(includedir)/sys
+
+preinstall:INSTALL=$(INSTALL_IF_CHANGE)
+preinstall:exec_prefix=$(prefix)
+preinstall:includedir=$(prefix)/include
+preinstall:prefix=$(abs_top_builddir)/data
+preinstall:install-data install-exec
+
+# a rule to link native programs
+#
+$(HOSTPROG)$(HOSTEXEEXT): $($(HOSTPROG)_OBJECTS) $($(HOSTPROG)_DEPENDENCIES)
+	$(HOSTCC) -o $@ $($(HOSTPROG)_OBJECTS) $($(HOSTPROG)_LDADD)
+
+# another hack; if we just enter the install-exechostbinPROGRAMS:
+# target on the left then automake will not emit a rule for installation
+# :-(.
+# As a work-around we let 'configure' fill this in...
+@installexechostbinprogs@:EXEEXT=$(HOSTEXEEXT)

@@ -1,0 +1,15 @@
+CLOBBER_ADDITIONS = $(LINKS) $(DUMMYHEADERS)
+
+$(DUMMYHEADERS):
+	@if [ ! -d `dirname $@` ] ; then mkdir -p `dirname $@`; fi
+	@touch $@
+
+$(LINKS):
+	@if [ ! -d $(dir $@) ] ; then mkdir -p $(dir $@); fi
+	@ln -s `echo $(dir $@) | sed -e 's%[^/]\+[/]\+%../%g'`$(srcdir)/$(notdir $@) $@
+
+
+BUILT_SOURCES += $(DUMMYHEADERS) $(LINKS)
+
+distclean-local:
+	$(RM) -r $(CLOBBER_ADDITIONS)

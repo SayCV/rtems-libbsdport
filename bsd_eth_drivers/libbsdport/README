@@ -1,0 +1,29 @@
+This is a library and collection of header files
+intended to ease porting recent FreeBSD (as of 7/2007)
+drivers to RTEMS. Currently, only the PCI bus is supported.
+
+A lot of macro-magic is used in the 'libbsdport.h'
+and 'libbsdport_post.h' headers which are te be included
+from the driver source file prior and after the driver
+includes the normal headers it uses:
+
+At the top of if_xxx.c add:
+
+#ifdef __rtems__
+#include <libbsdport.h>
+#endif
+
+... leave all normal include statements in place...
+#include <sys/yyy.h>
+
+lastly, add:
+
+#ifdef __rtems__
+#include <libbsdport_post.h>
+#endif
+
+Note that libbsdport does not provide the full freebsd
+kernel API but only a subset.
+
+<< MORE TO COME >>
+
