@@ -1,0 +1,12 @@
+2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* configure.ac, makefile.top.in: Do not have bge driver yet.
+
+2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* .cvsignore, networkconfig-qemu.h, bsd_eth_drivers/.cvsignore,
+	bsd_eth_drivers/if_em/.cvsignore, bsd_eth_drivers/if_le/.cvsignore,
+	bsd_eth_drivers/if_pcn/.cvsignore,
+	bsd_eth_drivers/libbsdport/.cvsignore,
+	bsd_eth_drivers/re/.cvsignore: New files.
+
