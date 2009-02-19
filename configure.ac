@@ -296,7 +296,6 @@ TILLAC_M4_IF_PRESENT([bsd_eth_drivers],
 [if test -d $srcdir/bsd_eth_drivers ; then
 	AC_CONFIG_FILES([bsd_eth_drivers/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/libbsdport/Makefile])
-	AC_CONFIG_FILES([bsd_eth_drivers/bge/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_pcn/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_le/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_em/Makefile])
