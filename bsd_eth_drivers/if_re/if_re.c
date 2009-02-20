@@ -291,14 +291,12 @@ static void re_ifmedia_sts	(struct ifnet *, struct ifmediareq *);
 static void re_eeprom_putbyte	(struct rl_softc *, int);
 static void re_eeprom_getword	(struct rl_softc *, int, u_int16_t *);
 static void re_read_eeprom	(struct rl_softc *, caddr_t, int, int);
-#ifndef __rtems__
 static int re_gmii_readreg	(device_t, int, int);
-#endif
 static int re_gmii_writereg	(device_t, int, int, int);
 
-#ifndef __rtems__
 static int re_miibus_readreg	(device_t, int, int);
 static int re_miibus_writereg	(device_t, int, int, int);
+#ifndef __rtems__
 static void re_miibus_statchg	(device_t);
 #endif
 
@@ -367,6 +365,46 @@ driver_t libbsdport_re_driver = {
 	DEV_TYPE_PCI,
 	sizeof(struct rl_softc)
 };
+
+static int
+mdio_r(int phy, void *uarg, unsigned reg, uint32_t *pval)
+{
+struct rl_softc *sc = uarg;
+
+	if ( phy != 0 )
+		return EINVAL;
+
+	*pval = (uint32_t) re_miibus_readreg(sc->rl_dev, phy, reg);
+
+	return 0;
+}
+
+static int
+mdio_w(int phy, void *uarg, unsigned reg, uint32_t val)
+{
+struct rl_softc *sc = uarg;
+
+	if ( phy != 0 )
+		return EINVAL;
+
+	re_miibus_writereg(sc->rl_dev, phy, reg, val);
+
+	return 0;
+}
+
+struct rtems_mdio_info re_mdio_100 = {
+	mdio_r   : mdio_r,
+	mdio_w   : mdio_w,
+	has_gmii : 0
+};
+
+struct rtems_mdio_info re_mdio_1000 = {
+	mdio_r   : mdio_r,
+	mdio_w   : mdio_w,
+	has_gmii : 1
+};
+
+#define RE_MDIO(sc) ((sc)->rl_type == RL_8169 ? &re_mdio_1000 : & re_mdio_100)
 
 #endif
 
@@ -474,7 +512,6 @@ re_read_eeprom(sc, dest, off, cnt)
 	return;
 }
 
-#ifndef __rtems__
 static int
 re_gmii_readreg(dev, phy, reg)
 	device_t		dev;
@@ -513,7 +550,6 @@ re_gmii_readreg(dev, phy, reg)
 
 	return (rval & RL_PHYAR_PHYDATA);
 }
-#endif
 
 static int
 re_gmii_writereg(dev, phy, reg, data)
@@ -545,7 +581,6 @@ re_gmii_writereg(dev, phy, reg, data)
 	return (0);
 }
 
-#ifndef __rtems__
 static int
 re_miibus_readreg(dev, phy, reg)
 	device_t		dev;
@@ -605,9 +640,7 @@ re_miibus_readreg(dev, phy, reg)
 	}
 	return (rval);
 }
-#endif
 
-#ifndef __rtems__
 static int
 re_miibus_writereg(dev, phy, reg, data)
 	device_t		dev;
@@ -659,7 +692,6 @@ re_miibus_writereg(dev, phy, reg, data)
 	CSR_WRITE_2(sc, re8139_reg, data);
 	return (0);
 }
-#endif
 
 #ifndef __rtems__
 static void
@@ -2005,9 +2037,30 @@ re_tick(xsc)
 		}
 	}
 #else
-#warning "MII stuff needs to be implemented!"
-	/* Just fake an OK link for now... */
-	sc->rl_link = 1;
+	{
+	int med, err;
+
+	med = IFM_MAKEWORD(0,0,0,0);
+
+	if ( (err = rtems_mii_ioctl( RE_MDIO(sc), sc, SIOCGIFMEDIA, &med)) ) {
+		device_printf(sc->rl_dev, "WARNING: mii ioctl failed; unable to determine link status -- fake ON\n");
+		med = IFM_LINK_OK;
+	}
+
+	/* link just died */
+	if ( sc->rl_link & !(IFM_LINK_OK & med) ) {
+		sc->rl_link = 0;
+	}
+
+	/* link just came up, restart */
+	if ( !sc->rl_link && (IFM_LINK_OK & med) ) {
+		sc->rl_link = 1;
+		if ( ifp->if_snd.ifq_head != NULL ) {
+			taskqueue_enqueue_fast(taskqueue_fast,
+			    &sc->rl_txtask);
+		}
+	}
+	}
 #endif
 	callout_reset(&sc->rl_stat_callout, hz, re_tick, sc);
 }
@@ -2691,6 +2744,8 @@ re_ioctl(struct ifnet *ifp, ioctl_command_t command, caddr_t data)
 		mii = device_get_softc(sc->rl_miibus);
 #ifndef __rtems__
 		error = ifmedia_ioctl(ifp, ifr, &mii->mii_media, command);
+#else
+		error = rtems_mii_ioctl( RE_MDIO(sc), sc, command, &ifr->ifr_media);
 #endif
 		break;
 #ifndef __rtems__
