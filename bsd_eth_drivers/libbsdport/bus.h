@@ -156,10 +156,29 @@ bus_setup_intr(device_t dev, struct resource *r, int flags, driver_filter_t filt
 /* Flags currently ignored... */
 #define INTR_MPSAFE	    0
 #define INTR_TYPE_NET   0
-/* INTR_FAST indicates that a 'handler' is actually
- * a 'fast' handler which already uses taskqueues
+
+/*
+ * INTR_FAST handlers are already more like 'filters',
+ * i.e., they disable interrupts and schedule work
+ * on a task queue.
+ * 
+ * During porting the fast handler has to be slightly
+ * rewritten (must return an int value, FILTER_HANDLED
+ * if a valid IRQ was detected and work has been scheduled
+ * and FILTER_STRAY if this device didn't interrupt).
+ *
+ * You need to then remove INTR_FAST from the flags,
+ * pass the converted handler as the 'filter' argument
+ * and a NULL handler argument to bus_setup_intr().
+ *
  */
-#define INTR_FAST       1
+extern int __INTR_FAST() __attribute__((
+	error("\n\n==> you need to convert bus_setup_intr(INTR_FAST) to new API;\n"
+              "    consult <sys/bus.h>\n\n")
+));
+
+/* Barf at compile time if they try to use INTR_FAST */
+#define INTR_FAST       (__INTR_FAST())
 
 int
 bus_teardown_intr(device_t dev, struct resource *r, void *cookiep);
