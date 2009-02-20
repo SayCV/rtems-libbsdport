@@ -1485,8 +1485,13 @@ re_attach(dev)
 #endif
 
 	/* Hook interrupt last to avoid having to lock softc */
+#ifndef __rtems__
 	error = bus_setup_intr(dev, sc->rl_irq, INTR_TYPE_NET | INTR_MPSAFE |
-	    INTR_FAST, re_intr, NULL, sc, &sc->rl_intrhand);
+	    INTR_FAST, re_intr, sc, &sc->rl_intrhand);
+#else
+	error = bus_setup_intr(dev, sc->rl_irq, INTR_TYPE_NET | INTR_MPSAFE,
+	    re_intr, NULL, sc, &sc->rl_intrhand);
+#endif
 	if (error) {
 		device_printf(dev, "couldn't set up irq\n");
 		ether_ifdetach(ifp);
