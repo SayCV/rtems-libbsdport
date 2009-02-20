@@ -1,5 +1,9 @@
 2009-02-20	Joel Sherrill <joel.sherrill@oarcorp.com>
 
+	* INSTALL: Attempt to update.
+
+2009-02-20	Joel Sherrill <joel.sherrill@oarcorp.com>
+
 	* configure.ac, bsd_eth_drivers/Makefile.am,
 	bsd_eth_drivers/libbsdport/alldrv.c,
 	bsd_eth_drivers/libbsdport/libbsdport_api.h: Add first cut at

@@ -1,3 +1,50 @@
+#
+#  $Id$
+#
+
+These notes are sketchy at best and reflect Joel's working
+knowledge.
+
+ASSUME: Building from 4.10 CVS head. Absolutely required!!! for
+        use on i386.
+
++ check out from CVS (you have done that)
++ bootstrap using bootstrap from RTEMS source
++ Build and install RTEMS BSPs of interest
++ Build libbsdport
+mkdir build
+cd build
+../libbsdport/configure \
+  --with-rtems-top=/home/joel/rtems-4.10-work/bsp-install/ \
+  --prefix=/home/joel/rtems-4.10-work/bsp-install/ >c.log 2>&1 && \
+  make >b.log 2>&1 && \
+  make install  >i.log 2>&1 
+echo $?
+
++ Build network demos for using the networkconfig-qemu.h in this
+  directory as your networkconfig.h.  If you are not targeting a pc,
+  you probably will have to drop off the ISA drivers in the configuration.
+
+  Also the IP is hard-coded as 10.0.2.5 in the above network config.
+
++ Running on qemu:
+
+qemu -no-reboot -m 128 -boot a -serial stdio \
+  -net nic,macaddr=00:80:7F:22:61:77,model=rtl8139 \
+  -net tap,vlan=0,script=/etc/qemu-ifup  \
+  -fda ~joel/qemu/pc386_fda -hda fat:/home/joel/qemu/hd
+
+I have an fda image in ftp under rtems/people/joel/qemu which autoboots
+test.exe from hda.  Use that.  
+
+The "NIC model" can be i82559er, rtl8139 or pcnet.  
+
++ On real hardware, do whatever it is you do.  Boot from floppy or net.
+  Fix your configuration and report back.
+
+--joel
+
+=========== ORIGINAL FROM Till =========================
 HOW TO BUILD THE SSRL RTEMS-APPLICATIONS
 
 $Id$
