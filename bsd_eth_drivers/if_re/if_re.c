@@ -260,7 +260,11 @@ static void re_txeof		(struct rl_softc *);
 static void re_poll		(struct ifnet *, enum poll_cmd, int);
 static void re_poll_locked	(struct ifnet *, enum poll_cmd, int);
 #endif
+#ifdef __rtems__
+static int re_intr		(void *);
+#else
 static void re_intr		(void *);
+#endif
 static void re_tick		(void *);
 static void re_tx_task		(void *, int);
 static void re_int_task		(void *, int);
@@ -353,6 +357,8 @@ static device_method_t re_methods = {
 	attach:         re_attach,
 	shutdown:       re_shutdown,
 	detach:         re_detach,
+	irq_check_dis:  0,
+	irq_en:         0,
 };
 
 driver_t libbsdport_re_driver = {
@@ -361,7 +367,6 @@ driver_t libbsdport_re_driver = {
 	DEV_TYPE_PCI,
 	sizeof(struct rl_softc)
 };
-
 
 #endif
 
@@ -1999,7 +2004,10 @@ re_tick(xsc)
 				    &sc->rl_txtask);
 		}
 	}
-
+#else
+#warning "MII stuff needs to be implemented!"
+	/* Just fake an OK link for now... */
+	sc->rl_link = 1;
 #endif
 	callout_reset(&sc->rl_stat_callout, hz, re_tick, sc);
 }
@@ -2051,7 +2059,11 @@ re_poll_locked(struct ifnet *ifp, enum poll_cmd cmd, int count)
 }
 #endif /* DEVICE_POLLING */
 
+#ifdef __rtems__
+static int
+#else
 static void
+#endif
 re_intr(arg)
 	void			*arg;
 {
@@ -2062,12 +2074,20 @@ re_intr(arg)
 
 	status = CSR_READ_2(sc, RL_ISR);
 	if (status == 0xFFFF || (status & RL_INTRS_CPLUS) == 0)
+#ifdef __rtems__
+				return FILTER_STRAY;
+#else
                 return;
+#endif
 	CSR_WRITE_2(sc, RL_IMR, 0);
 
 	taskqueue_enqueue_fast(taskqueue_fast, &sc->rl_inttask);
 
+#ifdef __rtems__
+	return FILTER_HANDLED;
+#else
 	return;
+#endif
 }
 
 static void
