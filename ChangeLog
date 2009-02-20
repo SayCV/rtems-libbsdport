@@ -1,3 +1,7 @@
+2009-02-20	Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* bsd_eth_drivers/re/if_re.c: Almost runs.
+
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
 
 	* bsd_eth_drivers/libbsdport/sysbus.c: Revert Till's patch.

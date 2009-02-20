@@ -348,32 +348,11 @@ DRIVER_MODULE(re, cardbus, re_driver, re_devclass, 0, 0);
 DRIVER_MODULE(miibus, re, miibus_driver, miibus_devclass, 0, 0);
 #else
 
-static int
-re_irq_check_dis(device_t d)
-{
-  // struct re_softc *sc = device_get_softc(d);
-  printk( "check_dis\n" );
-  return 0;
-}
-
-static void
-re_irq_en(device_t d)
-{
-  // struct re_softc *sc = device_get_softc(d);
-  /* This can be called from IRQ context -- since all register accesses
-   * involve RAP we must take care to preserve it across this routine!
-   */
-  printk( "irq_en\n" );
-}
-
-
 static device_method_t re_methods = {
 	probe:          re_probe,
 	attach:         re_attach,
 	shutdown:       re_shutdown,
 	detach:         re_detach,
-	irq_check_dis:  re_irq_check_dis,
-	irq_en:         re_irq_en,
 };
 
 driver_t libbsdport_re_driver = {
@@ -1404,6 +1383,13 @@ re_attach(dev)
 	TASK_INIT(&sc->rl_txtask, 1, re_tx_task, ifp);
 	TASK_INIT(&sc->rl_inttask, 0, re_int_task, sc);
 
+#ifdef __rtems__
+	taskqueue_create_fast("re_taskq", M_NOWAIT,
+	    taskqueue_thread_enqueue, &taskqueue_fast);
+	taskqueue_start_threads(&taskqueue_fast, 1, PI_NET, "%s taskq",
+	    device_get_nameunit(dev));
+#endif
+
 	/*
 	 * Call MI attach routine.
 	 */
@@ -1448,7 +1434,7 @@ re_attach(dev)
 
 	/* Hook interrupt last to avoid having to lock softc */
 	error = bus_setup_intr(dev, sc->rl_irq, INTR_TYPE_NET | INTR_MPSAFE |
-	    INTR_FAST, NULL, re_intr, sc, &sc->rl_intrhand);
+	    INTR_FAST, re_intr, NULL, sc, &sc->rl_intrhand);
 	if (error) {
 		device_printf(dev, "couldn't set up irq\n");
 		ether_ifdetach(ifp);
@@ -2074,7 +2060,6 @@ re_intr(arg)
 
 	sc = arg;
 
-printk( "re_intr " );
 	status = CSR_READ_2(sc, RL_ISR);
 	if (status == 0xFFFF || (status & RL_INTRS_CPLUS) == 0)
                 return;
