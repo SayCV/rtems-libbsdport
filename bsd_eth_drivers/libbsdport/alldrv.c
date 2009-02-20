@@ -2,6 +2,7 @@
 #include "libbsdport_api.h"
 
 driver_t *libbsdport_netdriver_table_all[] = {
+	&libbsdport_bge_driver,
 	&libbsdport_em_driver,
 	&libbsdport_pcn_driver,
 	&libbsdport_le_pci_driver,

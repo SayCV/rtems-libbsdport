@@ -1,5 +1,15 @@
 2009-02-20	Joel Sherrill <joel.sherrill@oarcorp.com>
 
+	* configure.ac, bsd_eth_drivers/Makefile.am,
+	bsd_eth_drivers/libbsdport/alldrv.c,
+	bsd_eth_drivers/libbsdport/libbsdport_api.h: Add first cut at
+	Broadcomm BCM57xx driver.
+	* bsd_eth_drivers/if_bge/.cvsignore,
+	bsd_eth_drivers/if_bge/Makefile.am, bsd_eth_drivers/if_bge/if_bge.c,
+	bsd_eth_drivers/if_bge/if_bgereg.h: New files.
+
+2009-02-20	Joel Sherrill <joel.sherrill@oarcorp.com>
+
 	* bsd_eth_drivers/re/if_re.c: Almost runs.
 
 2009-02-19	Joel Sherrill <joel.sherrill@oarcorp.com>
