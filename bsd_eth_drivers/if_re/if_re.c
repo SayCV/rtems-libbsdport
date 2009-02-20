@@ -710,8 +710,8 @@ re_setmulti(sc)
 	struct rl_softc		*sc;
 {
 	struct ifnet		*ifp;
-#ifndef __rtems__
 	int			h = 0;
+#ifndef __rtems__
 	struct ifmultiaddr	*ifma;
 #endif
 	u_int32_t		hashes[2] = { 0, 0 };
@@ -760,6 +760,21 @@ re_setmulti(sc)
 		mcnt++;
 	}
 	IF_ADDR_UNLOCK(ifp);
+#else
+	{
+	/* UNTESTED */
+	struct ether_multi     *enm;
+	struct ether_multistep step;
+	ETHER_FIRST_MULTI(step, (struct arpcom*)ifp, enm);
+	while ( enm != NULL ) {
+		h = ether_crc32_be(enm->enm_addrlo, ETHER_ADDR_LEN) >> 26;
+		if (h < 32)
+			hashes[0] |= (1 << h);
+		else
+			hashes[1] |= (1 << (h - 32));
+		mcnt++;
+	}
+	}
 #endif
 
 	if (mcnt)
