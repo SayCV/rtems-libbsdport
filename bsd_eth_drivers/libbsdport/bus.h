@@ -156,10 +156,6 @@ bus_setup_intr(device_t dev, struct resource *r, int flags, driver_filter_t filt
 /* Flags currently ignored... */
 #define INTR_MPSAFE	    0
 #define INTR_TYPE_NET   0
-/* INTR_FAST indicates that a 'handler' is actually
- * a 'fast' handler which already uses taskqueues
- */
-#define INTR_FAST       1
 
 int
 bus_teardown_intr(device_t dev, struct resource *r, void *cookiep);
@@ -194,16 +190,6 @@ rman_get_bustag(struct resource *r);
 #ifndef BUS_DMA_COHERENT	
 /* ignored anyways */
 #define BUS_DMA_COHERENT 0
-#endif
-
-#ifndef BUS_DMA_ZERO	
-/* ignored anyways */
-#define BUS_DMA_ZERO 0
-#endif
-
-#ifndef BUS_DMA_ALLOCNOW	
-/* ignored anyways */
-#define BUS_DMA_ALLOCNOW 0
 #endif
 
 /* unused */
@@ -279,37 +265,15 @@ bus_get_dma_tag(device_t dev)
 	return 0;
 }
 
-typedef void bus_dmamap_callback_t (void *arg, bus_dma_segment_t *segs, int nseg, int error);
+typedef void bus_dmamap_callback_t (void *, bus_dma_segment_t *, int, int);
 
 static inline int
-bus_dmamap_load(bus_dma_tag_t tag, bus_dmamap_t map, caddr_t vaddr, bus_size_t size, bus_dmamap_callback_t cb, void *arg, unsigned flags)
+bus_dmamap_load(bus_dma_tag_t tag, bus_dmamap_t map, caddr_t vaddr, bus_size_t size, void (*cb)(void *arg, bus_dma_segment_t *segs, int nseg, int error), void *arg, unsigned flags)
 {
 bus_dma_segment_t segs[1];
 	segs[0].ds_addr = CPU2BUSADDR(vaddr);
 	segs[0].ds_len  = size;
 	cb(arg, segs, 1, 0);
-	return 0;
-}
-
-typedef void bus_dmamap_callback2_t (void *arg, bus_dma_segment_t *segs, int nsegs, bus_size_t mapsize, int error);
-
-static inline int
-bus_dmamap_load_mbuf(bus_dma_tag_t tag, bus_dmamap_t map, struct mbuf *m_head, bus_dmamap_callback2_t cb, void *arg, unsigned flags)
-{
-/* hopefully there's enough stack ... */
-bus_dma_segment_t segs[tag->maxsegs];
-struct mbuf *m;
-int          n;
-bus_size_t   sz;
-	for ( m=m_head, sz=0, n=0; m; m=m->m_next, n++ ) {
-		if ( n >= tag->maxsegs ) {
-			cb(arg, segs, n, sz, EFBIG);
-			return EFBIG;
-		}
-		segs[n].ds_addr = CPU2BUSADDR(mtod(m, unsigned));
-		sz += (segs[n].ds_len  = m->m_len);
-	}
-	cb(arg, segs, n, sz, 0);
 	return 0;
 }
 

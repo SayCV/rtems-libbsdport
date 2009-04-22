@@ -12,7 +12,7 @@
 #include <sys/bus.h>
 #include "libbsdport_api.h"
 
-#define  DEBUG
+#undef  DEBUG
 
 extern void real_libc_free(void*);
 

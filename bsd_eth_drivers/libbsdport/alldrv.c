@@ -5,7 +5,6 @@ driver_t *libbsdport_netdriver_table_all[] = {
 	&libbsdport_em_driver,
 	&libbsdport_pcn_driver,
 	&libbsdport_le_pci_driver,
-	&libbsdport_re_driver,
 	0
 };
 

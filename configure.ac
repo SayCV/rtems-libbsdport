@@ -1,4 +1,4 @@
-AC_PREREQ(2.63)
+AC_PREREQ(2.62)
 
 m4_include(./m4/cvstag.m4)
 
@@ -296,23 +296,21 @@ TILLAC_M4_IF_PRESENT([bsd_eth_drivers],
 [if test -d $srcdir/bsd_eth_drivers ; then
 	AC_CONFIG_FILES([bsd_eth_drivers/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/libbsdport/Makefile])
-	AC_CONFIG_FILES([bsd_eth_drivers/bge/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_pcn/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_le/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_em/Makefile])
-	AC_CONFIG_FILES([bsd_eth_drivers/re/Makefile])
 	all_subdirs="${all_subdirs} bsd_eth_drivers"
 	if test "$ac_cv_func_pci_find_device" = "yes" ; then
-##		if test "${host_cpu}" = i386 && test ! "${have_bspext}" = yes ; then
-##			AC_MSG_NOTICE([Not building bsd_eth_drivers; on i386 you need libbspExt])
-##		else
+		if test "${host_cpu}" = i386 && test ! "${have_bspext}" = yes ; then
+			AC_MSG_NOTICE([Not building bsd_eth_drivers; on i386 you need libbspExt])
+		else
 			#FIXME: make these configurable options
 			ENBL_82542_SUPPORT=NO
 			ENBL_ICH8LAN_SUPPORT=YES
 			AC_SUBST([ENBL_82542_SUPPORT])
 			AC_SUBST([ENBL_ICH8LAN_SUPPORT])
 			enable_subdirs="${enable_subdirs} bsd_eth_drivers"
-##		fi
+		fi
 	fi
 fi]dnl
 )

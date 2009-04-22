@@ -1,0 +1,73 @@
+RTEMS PORT OF THE 'pcn' ETHERNET DRIVER
+=======================================
+
+This is a port of the FreeBSD 'pcn' driver as of
+2007/7/17 (checked out from FreeBSD/head on that date).
+
+SUPPORTED BSPs:
+- you need 'libbsdport' which in turn needs 'libbspExt'
+  These work for i386/pc386 and powerpc/new-exception-processing
+  BSPs, i.e., the BSP must implement <rtems/pci.h> and <rtems/irq.h>.
+
+USAGE:
+- to attach this driver:
+  *	define a NULL terminated list with all libbsdport supported
+	drivers you want to include with your application:
+
+	extern driver_t libbsdport_pcn_driver;
+
+	driver_t *libbsdport_netdriver_table[] = {
+		&libbsdport_pcn_driver,
+		/* other drivers here or upstream of 'pcn' if they support
+		 * the same hardware but are preferred.
+		 */
+		0
+	};
+
+  * specify libbsdport_netdriver_attach for the 'attach' function
+	pointer in struct rtems_bsdnet_ifconfig.
+
+  * use the 'name' field in struct rtems_bsdnet_ifconfig to filter
+    drivers and device instances:
+
+         <driver_name><instance>
+
+    either may be omitted which means that the next available
+	driver/hardware device is to be used. Here are a few examples:
+
+	     ""     /* use first device found supported by any driver in the
+		         * libbsdport_driver_table[].
+			     */
+
+	     "pcn2" /* use second device supported by the 'pcn' driver */ 
+
+	Notes: Counting instances begins with 1 (not 0).
+	       Consult libbsdport/README for more information.
+
+KNOWN ISSUES:
+- 'ignore_broadcast' and 'mtu' settings from
+  struct rtems_bsdnet_ifconfig are ignored. I haven't seen 
+  many drivers that honour 'ignore_broadcast' and 'mtu' can be
+  set using a ioctl(). I'm trying to keep changes to BSD sources
+  minimal...
+- ring sizes are restricted fixed to hardcoded size.
+- Only the internal phy of the 973/975 chips are supported
+  and will allow SIOCGIFMEDIA/SIOCSIFMEDIA to work. I don't know
+  what happens with other chips or external phys.
+  Probably, the factory-default setup should work with autonegotiation
+  but the ioctls wont. YMMV.
+
+OTHER NOTES:
+- you can use the (more generic) 'le' driver for the 79C971
+  and upwards chips, too, but 'pcn' supposedly uses more advanced
+  features of these chips.
+
+TESTED WITH:
+  Technobox 10/100-TX Ethernet PMC (AMD Am79C973 chip)
+
+TESTED ON:
+  rtems-4.7
+    powerpc/beatnik (motorola MVME5500 and MVME6100 VME boards)
+	i386/pc686      (concurrent technologies PP410 compact PCI)
+
+T.S, 200707

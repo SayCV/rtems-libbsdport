@@ -38,9 +38,6 @@ DUMMYHEADERS+=dummyheaders/netinet/ip6.h
 DUMMYHEADERS+=dummyheaders/vm/pmap.h
 DUMMYHEADERS+=dummyheaders/miibus_if.h
 
-DUMMYHEADERS+=dummyheaders/miidevs.h
-DUMMYHEADERS+=dummyheaders/dev/mii/brgphyreg.h
-
 BUILT_SOURCES=
 
 include ../links.am

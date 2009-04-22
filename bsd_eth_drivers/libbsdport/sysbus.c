@@ -143,15 +143,10 @@ bus_setup_intr(device_t dev, struct resource *r, int flags, driver_filter_t filt
 int                rval;
 struct irq_cookie *info = 0;
 
+
+
 	if ( filter && handler ) {
 		rtems_panic("bus_setup_intr for both: filter & handler not implemented\n");
-	}
-
-	if ( (flags & INTR_FAST) && filter ) {
-		rtems_panic("bus_setup_intr for both: filter & INTR_FAST not implemented\n");
-		/* handler is a fast handler already */
-		filter  = (driver_filter_t) handler;
-		handler = 0;
 	}
 
 	if ( handler ) {
@@ -192,8 +187,7 @@ struct irq_cookie *info = 0;
 		return rval;
 	}
 
-	if ( cookiep )
-		*cookiep = info;
+	*cookiep = info;
 	return rval;
 }
 

@@ -24,8 +24,6 @@ extern driver_t *libbsdport_netdriver_table[];
 extern driver_t libbsdport_em_driver;       
 /* AMD 79C971..976 pcnet PCI */
 extern driver_t libbsdport_pcn_driver;
-/* RealTek RTL8139, 8168, 8169, 8169S, 8110, 8101E, and 8111 PCI */
-extern driver_t libbsdport_re_driver;
 /* AMD/Lance older (and later) chips; this driver also supports what 'pcn'
  * does but might not be as efficient.
  * NOTE: The 'le_pci' driver works with the pcnet32 (79C970A) emulation

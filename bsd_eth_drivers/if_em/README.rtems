@@ -1,0 +1,66 @@
+RTEMS PORT OF THE 'em' ETHERNET DRIVER
+======================================
+
+This is a port of the intel / FreeBSD 'em' driver as of
+2007/7/4 (checked out from FreeBSD/head on that date).
+
+SUPPORTED BSPs:
+- you need 'libbsdport' which in turn needs 'libbspExt'
+  These work for i386/pc386 and powerpc/new-exception-processing
+  BSPs, i.e., the BSP must implement <rtems/pci.h> and <rtems/irq.h>.
+
+USAGE:
+- to attach this driver:
+  *	define a NULL terminated list with all libbsdport supported
+	drivers you want to include with your application:
+
+	extern driver_t libbsdport_em_driver;
+
+	driver_t *libbsdport_netdriver_table[] = {
+		&libbsdport_em_driver,
+		/* other drivers here or upstream of 'em' if they support
+		 * the same hardware but are preferred.
+		 */
+		0
+	};
+
+  * specify libbsdport_netdriver_attach for the 'attach' function
+	pointer in struct rtems_bsdnet_ifconfig.
+
+  * use the 'name' field in struct rtems_bsdnet_ifconfig to filter
+    drivers and device instances:
+
+         <driver_name><instance>
+
+    either may be omitted which means that the next available
+	driver/hardware device is to be used. Here are a few examples:
+
+	     ""     /* use first device found supported by any driver in the
+		         * libbsdport_driver_table[].
+			     */
+
+	     "em2" /* use second device supported by the 'em' driver */ 
+
+	Notes: Counting instances begins with 1 (not 0).
+	       Consult libbsdport/README for more information.
+
+
+KNOWN ISSUES:
+- 'ignore_broadcast' and 'mtu' settings from
+  struct rtems_bsdnet_ifconfig are ignored. I haven't seen 
+  many drivers that honour 'ignore_broadcast' and 'mtu' can be
+  set using a ioctl(). I'm trying to keep changes to BSD sources
+  minimal...
+- ring sizes are restricted (driver validates sizes and uses
+  defaults if requested sizes don't meet requirements).
+
+TESTED WITH:
+  82544 on motorola MVME5500 (PPC MVE board)
+  82573 on concurrent technologies PP410 (intel x86) board
+
+TESTED ON:
+  rtems-4.7
+    powerpc/beatnik (motorola MVME5500)
+	i386/pc686      (concurrent technologies PP410 compact PCI)
+
+T.S, 200707
