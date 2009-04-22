@@ -1,0 +1,291 @@
+FreeBSD checkout at 2007-07-04 00:49 PDT
+
+? freebsd_cvs_status
+===================================================================
+File: LICENSE          	Status: Up-to-date
+
+   Working revision:	1.6
+   Repository revision:	1.6	/home/ncvs/src/sys/dev/em/LICENSE,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: README           	Status: Up-to-date
+
+   Working revision:	1.15
+   Repository revision:	1.15	/home/ncvs/src/sys/dev/em/README,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_80003es2lan.c	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_80003es2lan.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_80003es2lan.h	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_80003es2lan.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82540.c    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82540.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82541.c    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82541.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82541.h    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82541.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82542.c    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82542.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82543.c    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82543.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82543.h    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82543.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82571.c    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82571.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82571.h    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82571.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82575.c    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82575.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_82575.h    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_82575.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_api.c      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_api.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_api.h      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_api.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_defines.h  	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_defines.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_hw.h       	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_hw.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_ich8lan.c  	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_ich8lan.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_ich8lan.h  	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_ich8lan.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_mac.c      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_mac.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_mac.h      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_mac.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_manage.c   	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_manage.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_manage.h   	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_manage.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_nvm.c      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_nvm.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_nvm.h      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_nvm.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_osdep.h    	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_osdep.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_phy.c      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_phy.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_phy.h      	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_phy.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: e1000_regs.h     	Status: Up-to-date
+
+   Working revision:	1.3
+   Repository revision:	1.3	/home/ncvs/src/sys/dev/em/e1000_regs.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: if_em.c          	Status: Up-to-date
+
+   Working revision:	1.181
+   Repository revision:	1.181	/home/ncvs/src/sys/dev/em/if_em.c,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+
+===================================================================
+File: if_em.h          	Status: Up-to-date
+
+   Working revision:	1.61
+   Repository revision:	1.61	/home/ncvs/src/sys/dev/em/if_em.h,v
+   Sticky Tag:		(none)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+

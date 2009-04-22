@@ -1,0 +1,20 @@
+	2008/03/22 (TS)
+	- silence more compiler warnings:
+	  * make DMA address void* instead of caddr_t to avoid strict-aliasing violation
+	  * add dummy statement to silence 'unused variable' warning.
+	- added header with RTEMS version checking macro. Unfortunately, many small
+	  details of the RTEMS APIs change with versions :-( [e.g., changed type
+	  from unsigned -> uint32_t in st_le32()]. Individual files can include
+	  the new <rtems_verscheck.h> and test for RTEMS version to switch conditional
+	  compilation (aaargh).
+	- header clash; <queue.h> (and others) are present in newlib and in RTEMS/bsdnet
+	  but they use a different multiple-inclusion guard :-(. Must pick the right one...
+	2007/11/07 (TS)
+	- added ChangeLog
+	- moved arp_ifinit from libbsdport.h to libbsdport_post.h
+	- replaced inport_xxx/outport_xxx by in_xxx/out_xxx and _IO_BASE
+	- bookE has not mftb instruction :-( we must use mfspr
+	  (but that wouldn't work on classic ppc if we were not
+	  in supervisory mode).
+	- type adaptions in libbsdport.h to protect us against
+	  alias rule and to silence warnings.

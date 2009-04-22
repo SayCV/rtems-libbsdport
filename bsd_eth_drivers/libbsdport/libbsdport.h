@@ -31,10 +31,6 @@
 
 #include <rtems_udelay.h>
 
-#ifndef bswap32
-#define bswap32(_x) CPU_swap_u32(_x)
-#endif
-
 #if defined(__LITTLE_ENDIAN__) || defined(__i386__)
 static inline uint16_t  htole16(uint16_t  v) { return v; }
 static inline uint32_t  htole32(uint32_t  v) { return v; }
@@ -191,9 +187,6 @@ static inline void membarrier_w()  { asm volatile("eieio":::"memory"); }
 #define PCIY_PMG             0x01
 #endif
 
-#ifndef PCI_RF_DENSE
-#define PCI_RF_DENSE         0
-#endif 
 
 static inline uint32_t
 pci_read_config(device_t dev, unsigned reg, int width)
