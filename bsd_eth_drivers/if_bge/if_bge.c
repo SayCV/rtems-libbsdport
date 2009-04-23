@@ -138,16 +138,11 @@ MODULE_DEPEND(bge, miibus, 1, 1, 1);
 
 #ifdef __rtems__
 #include <libbsdport_post.h>
-#define bootverbose 0
-#define bswap32(_x) CPU_swap_u32(_x)
 #define TUNABLE_INT(_a,_b)
 #define m_cljget(_a, _b, _c)
 #define MJUM9BYTES 0
-#define bus_dmamap_load(a, b, c, d, e, _ctx, g) 0; (_ctx)->bge_busaddr = 0
 #define static
 #define PCIM_MSICTRL_MSI_ENABLE 0
-#define callout_pending(_a) 1
-#define callout_active(_a) 1
 #define M_WRITABLE(_m) 1
 #define m_collapse(_m, _f, _f1) (_m)
 #define M_FIRSTFRAG 0
@@ -1213,8 +1208,8 @@ bge_setmulti(struct bge_softc *sc)
 	struct ifnet *ifp;
 #ifndef __rtems__
 	struct ifmultiaddr *ifma;
-	int h;
 #endif
+	int h;
 	uint32_t hashes[4] = { 0, 0, 0, 0 };
 	int i;
 
@@ -1244,7 +1239,17 @@ bge_setmulti(struct bge_softc *sc)
 	}
 	IF_ADDR_UNLOCK(ifp);
 #else
-        #warning "multiaddrs TBD"
+	{
+	/* UNTESTED */
+	struct ether_multi     *enm;
+	struct ether_multistep step;
+	ETHER_FIRST_MULTI(step, (struct arpcom*)ifp, enm);
+	while ( enm != NULL ) {
+		h = ether_crc32_le(enm->enm_addrlo, ETHER_ADDR_LEN) & 0x7F;
+		hashes[(h & 0x60) >> 5] |= 1 << (h & 0x1F);
+		ETHER_NEXT_MULTI( step, enm );
+	}
+	}
 #endif
 
 	for (i = 0; i < 4; i++)
@@ -4188,6 +4193,10 @@ bge_ioctl(struct ifnet *ifp, ioctl_command_t command, caddr_t data)
 		break;
 	case SIOCADDMULTI:
 	case SIOCDELMULTI:
+#ifdef __rtems__
+		if ( ETHER_SIOCMULTIFRAG(error, command, ifr, ifp) )
+			break;
+#endif
 		if (ifp->if_drv_flags & IFF_DRV_RUNNING) {
 			BGE_LOCK(sc);
 			bge_setmulti(sc);
