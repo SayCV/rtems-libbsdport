@@ -1,4 +1,4 @@
-AC_PREREQ(2.63)
+AC_PREREQ(2.62)
 
 m4_include(./m4/cvstag.m4)
 
