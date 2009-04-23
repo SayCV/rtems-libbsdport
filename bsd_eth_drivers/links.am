@@ -5,8 +5,9 @@ $(DUMMYHEADERS):
 	@touch $@
 
 $(LINKS):
-	@if [ ! -d $(dir $@) ] ; then mkdir -p $(dir $@); fi
-	@ln -s `echo $(dir $@) | sed -e 's%[^/]\+[/]\+%../%g'`$(srcdir)/$(notdir $@) $@
+	echo $@
+	if [ ! -d $(dir $@) ] ; then mkdir -p $(dir $@); fi
+	ln -s `echo $(dir $@) | sed -e 's%[^/]\+[/]\+%../%g'`$(srcdir)/$(notdir $@) $@
 
 
 BUILT_SOURCES += $(DUMMYHEADERS) $(LINKS)
