@@ -12,12 +12,8 @@
 #include <sys/bus.h>
 #include "libbsdport_api.h"
 
-<<<<<<< devicet.c
 #define  DEBUG 0
 int libbsdportAttachVerbose = DEBUG;
-=======
-#undef  DEBUG
->>>>>>> 1.1.1.2
 
 extern void real_libc_free(void*);
 
