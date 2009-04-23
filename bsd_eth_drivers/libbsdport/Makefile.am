@@ -5,7 +5,7 @@ include $(top_srcdir)/rtems-pre.am
 
 libbsdport_a_SOURCES     = rtems_callout.c rtems_taskqueue.c rtems_udelay.c
 libbsdport_a_SOURCES    += ifstuff.c devicet.c alldrv.c contigmalloc.c
-libbsdport_a_SOURCES    += sysbus.c malloc.c ifmedia.c
+libbsdport_a_SOURCES    += sysbus.c malloc.c ifmedia.c misc.c miistuff.c
 
 libbsdport_a_SOURCES    += rtems_verscheck.h bus.h callout.h devicet.h
 libbsdport_a_SOURCES    += libbsdport.h libbsdport_post.h mutex.h
