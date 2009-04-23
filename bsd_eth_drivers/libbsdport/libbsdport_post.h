@@ -10,6 +10,8 @@
 
 #undef  SYSCTL_ADD_INT
 #define SYSCTL_ADD_INT(unused...)  do { } while (0)
+
+#define RTEMS_SYSCTL_NOTYETSUP
 #endif
 
 #include <netinet/in.h>
@@ -87,9 +89,20 @@ ether_setaddr(struct ifnet *ifp, u_int8_t *eaddr);
 	} while (0)
 
 #define ETHER_SIOCMULTIFRAG(e, c, ifr, ifp)                    \
-	( ENETRESET != (e = (SIOCADDMULTI == (c) ?                 \
+	( ((e) = (SIOCADDMULTI == (c) ?                            \
 			ether_addmulti((ifr), (struct arpcom*)(ifp)) :     \
-			ether_delmulti((ifr), (struct arpcom*)(ifp)) )))   \
+			ether_delmulti((ifr), (struct arpcom*)(ifp)) )),   \
+	  ((e) = ENETRESET == (e) ? 0 : (e)) )
 
 #define arp_ifinit(ifp, ifa) arp_ifinit((struct arpcom *)ifp, ifa)
 
+
+#define mii_mediachg(mii) do {} while (0)
+
+/* find the currently active PHY; assume bootloader or firmware
+ * has set it up already.
+ *
+ * RETURNS: phy idx 0..31 or -1 on error
+ */
+int
+rtems_mii_phy_probe(struct rtems_mdio_info *mdio, void *if_softc);
