@@ -26,6 +26,9 @@
  * SUCH DAMAGE.
  *
  */
+#ifdef __rtems__
+#include <libbsdport.h>
+#endif
 
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD: src/sys/dev/fxp/if_fxp.c,v 1.266.6.1 2008/11/25 02:59:29 kensmith Exp $");
@@ -87,6 +90,10 @@ MODULE_DEPEND(fxp, pci, 1, 1, 1);
 MODULE_DEPEND(fxp, ether, 1, 1, 1);
 MODULE_DEPEND(fxp, miibus, 1, 1, 1);
 #include "miibus_if.h"
+
+#ifdef __rtems__
+#include <libbsdport_post.h>
+#endif
 
 /*
  * NOTE!  On the Alpha, we have an alignment constraint.  The
@@ -213,8 +220,10 @@ static int		fxp_probe(device_t dev);
 static int		fxp_attach(device_t dev);
 static int		fxp_detach(device_t dev);
 static int		fxp_shutdown(device_t dev);
+#ifndef __rtems__
 static int		fxp_suspend(device_t dev);
 static int		fxp_resume(device_t dev);
+#endif
 
 static void		fxp_intr(void *xsc);
 static void		fxp_intr_body(struct fxp_softc *sc, struct ifnet *ifp,
@@ -227,8 +236,13 @@ static void 		fxp_start_body(struct ifnet *ifp);
 static int		fxp_encap(struct fxp_softc *sc, struct mbuf *m_head);
 static void		fxp_stop(struct fxp_softc *sc);
 static void 		fxp_release(struct fxp_softc *sc);
+#ifndef __rtems__
 static int		fxp_ioctl(struct ifnet *ifp, u_long command,
 			    caddr_t data);
+#else
+static int		fxp_ioctl(struct ifnet *ifp, ioctl_command_t command,
+			    caddr_t data);
+#endif
 static void 		fxp_watchdog(struct fxp_softc *sc);
 static int		fxp_add_rfabuf(struct fxp_softc *sc,
     			    struct fxp_rx *rxp);
@@ -243,9 +257,11 @@ static void		fxp_read_eeprom(struct fxp_softc *sc, u_short *data,
 			    int offset, int words);
 static void		fxp_write_eeprom(struct fxp_softc *sc, u_short *data,
 			    int offset, int words);
+#ifndef __rtems__
 static int		fxp_ifmedia_upd(struct ifnet *ifp);
 static void		fxp_ifmedia_sts(struct ifnet *ifp,
 			    struct ifmediareq *ifmr);
+#endif
 static int		fxp_serial_ifmedia_upd(struct ifnet *ifp);
 static void		fxp_serial_ifmedia_sts(struct ifnet *ifp,
 			    struct ifmediareq *ifmr);
@@ -253,16 +269,66 @@ static int		fxp_miibus_readreg(device_t dev, int phy, int reg);
 static void		fxp_miibus_writereg(device_t dev, int phy, int reg,
 			    int value);
 static void		fxp_load_ucode(struct fxp_softc *sc);
+#ifndef RTEMS_SYSCTL_NOTYETSUP
 static int		sysctl_int_range(SYSCTL_HANDLER_ARGS,
 			    int low, int high);
 static int		sysctl_hw_fxp_bundle_max(SYSCTL_HANDLER_ARGS);
 static int		sysctl_hw_fxp_int_delay(SYSCTL_HANDLER_ARGS);
+#endif
 static void 		fxp_scb_wait(struct fxp_softc *sc);
 static void		fxp_scb_cmd(struct fxp_softc *sc, int cmd);
 static void		fxp_dma_wait(struct fxp_softc *sc,
     			    volatile uint16_t *status, bus_dma_tag_t dmat,
 			    bus_dmamap_t map);
 
+#ifdef __rtems__
+
+static int
+fxp_irq_check_dis(device_t d)
+{
+struct  fxp_softc *sc      = device_get_softc(d);
+uint8_t           statack  = CSR_READ_1(sc, FXP_CSR_SCB_STATACK);
+
+	if ( statack && 0xff != statack ) {
+		CSR_WRITE_1(sc, FXP_CSR_SCB_INTRCNTL, FXP_SCB_INTR_DISABLE);
+		return FILTER_HANDLED;
+	}
+
+	return FILTER_STRAY;	
+}
+
+static void
+fxp_irq_en(device_t d)
+{
+struct fxp_softc *sc = device_get_softc(d);
+	CSR_WRITE_1(sc, FXP_CSR_SCB_INTRCNTL, 0);
+}
+
+static device_method_t fxp_methods = {
+	probe:			fxp_probe,
+	attach:			fxp_attach,
+	shutdown:		(void (*)(device_t))fxp_shutdown,
+	detach:			fxp_detach,
+	irq_check_dis:	fxp_irq_check_dis,
+	irq_en:			fxp_irq_en,
+};
+
+driver_t libbsdport_fxp_driver = {
+	"fxp",
+	&fxp_methods,
+	DEV_TYPE_PCI,
+	sizeof(struct fxp_softc)
+};
+
+static int		mdio_r(int phy, void *uarg, unsigned reg, uint32_t *pval);
+static int		mdio_w(int phy, void *uarg, unsigned reg, uint32_t data);
+
+struct rtems_mdio_info fxp_mdio = {
+	mdio_r: mdio_r,
+	mdio_w: mdio_w,
+	has_gmii: 0
+};
+#else
 static device_method_t fxp_methods[] = {
 	/* Device interface */
 	DEVMETHOD(device_probe,		fxp_probe),
@@ -290,6 +356,7 @@ static devclass_t fxp_devclass;
 DRIVER_MODULE(fxp, pci, fxp_driver, fxp_devclass, 0, 0);
 DRIVER_MODULE(fxp, cardbus, fxp_driver, fxp_devclass, 0, 0);
 DRIVER_MODULE(miibus, fxp, miibus_driver, miibus_devclass, 0, 0);
+#endif
 
 static struct resource_spec fxp_res_spec_mem[] = {
 	{ SYS_RES_MEMORY,	FXP_PCI_MMBA,	RF_ACTIVE },
@@ -753,13 +820,26 @@ fxp_attach(device_t dev)
 	if (sc->flags & FXP_FLAG_SERIAL_MEDIA) {
 		ifmedia_add(&sc->sc_media, IFM_ETHER|IFM_MANUAL, 0, NULL);
 		ifmedia_set(&sc->sc_media, IFM_ETHER|IFM_MANUAL);
+#ifdef __rtems__
+		sc->phyidx = -1;
+#endif
 	} else {
+#ifndef __rtems__
 		if (mii_phy_probe(dev, &sc->miibus, fxp_ifmedia_upd,
 		    fxp_ifmedia_sts)) {
 	                device_printf(dev, "MII without any PHY!\n");
 			error = ENXIO;
 			goto fail;
 		}
+#else
+		sc->phyidx = -2;
+		sc->phyidx = rtems_mii_phy_probe(&fxp_mdio, sc);
+		if ( sc->phyidx < 0 ) {
+	        device_printf(dev, "MII without any PHY!\n");
+			error = ENXIO;
+			goto fail;
+		}
+#endif
 	}
 
 	if_initname(ifp, device_get_name(dev), device_get_unit(dev));
@@ -769,6 +849,7 @@ fxp_attach(device_t dev)
 	ifp->if_ioctl = fxp_ioctl;
 	ifp->if_start = fxp_start;
 
+#ifndef __rtems__
 	ifp->if_capabilities = ifp->if_capenable = 0;
 
 	/* Enable checksum offload for 82550 or better chips */
@@ -782,12 +863,14 @@ fxp_attach(device_t dev)
 	/* Inform the world we support polling. */
 	ifp->if_capabilities |= IFCAP_POLLING;
 #endif
+#endif
 
 	/*
 	 * Attach the interface.
 	 */
 	ether_ifattach(ifp, eaddr);
 
+#ifndef __rtems__
 	/*
 	 * Tell the upper layer(s) we support long frames.
 	 * Must appear after the call to ether_ifattach() because
@@ -796,6 +879,7 @@ fxp_attach(device_t dev)
 	ifp->if_data.ifi_hdrlen = sizeof(struct ether_vlan_header);
 	ifp->if_capabilities |= IFCAP_VLAN_MTU;
 	ifp->if_capenable |= IFCAP_VLAN_MTU; /* the hw bits already set */
+#endif
 
 	/*
 	 * Let the system queue as many packets as we have available
@@ -898,9 +982,11 @@ fxp_detach(device_t dev)
 {
 	struct fxp_softc *sc = device_get_softc(dev);
 
+#ifndef __rtems__
 #ifdef DEVICE_POLLING
 	if (sc->ifp->if_capenable & IFCAP_POLLING)   
 		ether_poll_deregister(sc->ifp);
+#endif
 #endif
 
 	FXP_LOCK(sc);
@@ -951,6 +1037,7 @@ fxp_shutdown(device_t dev)
 	return (0);
 }
 
+#ifndef __rtems__
 /*
  * Device suspend routine.  Stop the interface and save some PCI
  * settings in case the BIOS doesn't restore them properly on
@@ -995,6 +1082,7 @@ fxp_resume(device_t dev)
 	FXP_UNLOCK(sc);
 	return (0);
 }
+#endif
 
 static void 
 fxp_eeprom_shiftin(struct fxp_softc *sc, int data, int length)
@@ -1275,6 +1363,7 @@ fxp_encap(struct fxp_softc *sc, struct mbuf *m_head)
 		txp->tx_cb->ipcb_ip_activation_high =
 		    FXP_IPCB_HARDWAREPARSING_ENABLE;
 
+#ifndef __rtems__
 	/*
 	 * Deal with TCP/IP checksum offload. Note that
 	 * in order for TCP checksum offload to work,
@@ -1331,6 +1420,7 @@ fxp_encap(struct fxp_softc *sc, struct mbuf *m_head)
 		}
 #endif
 	}
+#endif
 
 	chainlen = 0;
 	for (m = m_head; m != NULL && chainlen <= sc->maxtxseg; m = m->m_next)
@@ -1502,11 +1592,13 @@ fxp_intr(void *xsc)
 		return;
 	}
 
+#ifndef __rtems__
 #ifdef DEVICE_POLLING
 	if (ifp->if_capenable & IFCAP_POLLING) {
 		FXP_UNLOCK(sc);
 		return;
 	}
+#endif
 #endif
 	while ((statack = CSR_READ_1(sc, FXP_CSR_SCB_STATACK)) != 0) {
 		/*
@@ -1671,6 +1763,7 @@ fxp_intr_body(struct fxp_softc *sc, struct ifnet *ifp, uint8_t statack,
 				continue;
 			}
 
+#ifndef __rtems__
                         /* Do IP checksum checking. */
 			if (le16toh(rfa->rfa_status) & FXP_RFA_STATUS_PARSE) {
 				if (rfa->rfax_csum_sts &
@@ -1690,6 +1783,7 @@ fxp_intr_body(struct fxp_softc *sc, struct ifnet *ifp, uint8_t statack,
 					m->m_pkthdr.csum_data = 0xffff;
 				}
 			}
+#endif
 
 			m->m_pkthdr.len = m->m_len = total_len;
 			m->m_pkthdr.rcvif = ifp;
@@ -1703,7 +1797,11 @@ fxp_intr_body(struct fxp_softc *sc, struct ifnet *ifp, uint8_t statack,
 			 * calling if_input() on each one.
 			 */
 			FXP_UNLOCK(sc);
+#ifndef __rtems__
 			(*ifp->if_input)(ifp, m);
+#else
+			ether_input_skipping(ifp, m);
+#endif
 			FXP_LOCK(sc);
 		} else if (fxp_rc == ENOBUFS) {
 			rnr = 0;
@@ -1814,8 +1912,10 @@ fxp_tick(void *xsc)
 		sp->rx_rnr_errors = 0;
 		sp->rx_overrun_errors = 0;
 	}
+#ifndef __rtems__
 	if (sc->miibus != NULL)
 		mii_tick(device_get_softc(sc->miibus));
+#endif
 
 	/*
 	 * Check that chip hasn't hung.
@@ -2161,6 +2261,7 @@ fxp_init_body(struct fxp_softc *sc)
 	/*
 	 * Enable interrupts.
 	 */
+#ifndef __rtems__
 #ifdef DEVICE_POLLING
 	/*
 	 * ... but only do that if we are not polling. And because (presumably)
@@ -2170,6 +2271,7 @@ fxp_init_body(struct fxp_softc *sc)
 		CSR_WRITE_1(sc, FXP_CSR_SCB_INTRCNTL, FXP_SCB_INTR_DISABLE);
 	else
 #endif /* DEVICE_POLLING */
+#endif
 	CSR_WRITE_1(sc, FXP_CSR_SCB_INTRCNTL, 0);
 
 	/*
@@ -2192,6 +2294,7 @@ fxp_serial_ifmedia_sts(struct ifnet *ifp, struct ifmediareq *ifmr)
 	ifmr->ifm_active = IFM_ETHER|IFM_MANUAL;
 }
 
+#ifndef __rtems__
 /*
  * Change media according to request.
  */
@@ -2235,6 +2338,7 @@ fxp_ifmedia_sts(struct ifnet *ifp, struct ifmediareq *ifmr)
 		sc->cu_resume_bug = 0;
 	FXP_UNLOCK(sc);
 }
+#endif
 
 /*
  * Add a buffer to the end of the RFA buffer list.
@@ -2361,13 +2465,58 @@ fxp_miibus_writereg(device_t dev, int phy, int reg, int value)
 		device_printf(dev, "fxp_miibus_writereg: timed out\n");
 }
 
+#ifdef __rtems__
 static int
+mdio_r(int phy, void *uarg, unsigned reg, uint32_t *pval)
+{
+	struct fxp_softc *sc = uarg;
+
+	/* Hack to support early probing */
+	if ( -2 != sc->phyidx ) {
+
+		/* using phy's other than the default not supported */
+		if ( 0 != phy || sc->phyidx < 0 ) {
+			return EINVAL;
+		}
+		phy = sc->phyidx;
+	}
+
+	*pval = fxp_miibus_readreg(sc->dev, phy, reg);
+
+	return 0;
+}
+
+static int
+mdio_w(int phy, void *uarg, unsigned reg, uint32_t value)
+{
+	struct fxp_softc *sc = uarg;
+
+	/* using phy's other than the default not supported */
+	if ( 0 != phy || sc->phyidx < 0 ) {
+		return EINVAL;
+	}
+
+	fxp_miibus_writereg(sc->dev, sc->phyidx, reg, value);
+
+	return 0;
+}
+#endif
+
+static int
+#ifndef __rtems__
 fxp_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
+#else
+fxp_ioctl(struct ifnet *ifp, ioctl_command_t command, caddr_t data)
+#endif
 {
 	struct fxp_softc *sc = ifp->if_softc;
 	struct ifreq *ifr = (struct ifreq *)data;
+#ifndef __rtems__
 	struct mii_data *mii;
 	int flag, mask, error = 0;
+#else
+	int error = 0;
+#endif
 
 	switch (command) {
 	case SIOCSIFFLAGS:
@@ -2394,6 +2543,10 @@ fxp_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 
 	case SIOCADDMULTI:
 	case SIOCDELMULTI:
+#ifdef __rtems__
+		if ( ETHER_SIOCMULTIFRAG(error, command, ifr, ifp) )
+			break;
+#endif
 		FXP_LOCK(sc);
 		if (ifp->if_flags & IFF_ALLMULTI)
 			sc->flags |= FXP_FLAG_ALL_MCAST;
@@ -2417,6 +2570,7 @@ fxp_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 
 	case SIOCSIFMEDIA:
 	case SIOCGIFMEDIA:
+#ifndef __rtems__
 		if (sc->miibus != NULL) {
 			mii = device_get_softc(sc->miibus);
                         error = ifmedia_ioctl(ifp, ifr,
@@ -2424,8 +2578,12 @@ fxp_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 		} else {
                         error = ifmedia_ioctl(ifp, ifr, &sc->sc_media, command);
 		}
+#else
+		error = rtems_mii_ioctl(&fxp_mdio, sc, command, &ifr->ifr_media);
+#endif
 		break;
 
+#ifndef __rtems__
 	case SIOCSIFCAP:
 		mask = ifp->if_capenable ^ ifr->ifr_reqcap;
 #ifdef DEVICE_POLLING
@@ -2462,6 +2620,17 @@ fxp_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 			FXP_UNLOCK(sc);
 		}
 		break;
+#endif
+
+#ifdef __rtems__
+	case SIO_RTEMS_SHOW_STATS:
+		printf("Good packets sent  %lu\n", ifp->if_opackets);
+		printf("Output errors      %lu\n", ifp->if_oerrors);
+		printf("Good packets recvd %lu\n", ifp->if_ipackets);
+		printf("Input  errors      %lu\n", ifp->if_ierrors);
+		printf("Collisions         %lu\n", ifp->if_collisions);
+		break;
+#endif
 
 	default:
 		error = ether_ioctl(ifp, command, data);
@@ -2477,11 +2646,14 @@ fxp_mc_addrs(struct fxp_softc *sc)
 {
 	struct fxp_cb_mcs *mcsp = sc->mcsp;
 	struct ifnet *ifp = sc->ifp;
+#ifndef __rtems__
 	struct ifmultiaddr *ifma;
+#endif
 	int nmcasts;
 
 	nmcasts = 0;
 	if ((sc->flags & FXP_FLAG_ALL_MCAST) == 0) {
+#ifndef __rtems__
 		IF_ADDR_LOCK(ifp);
 		TAILQ_FOREACH(ifma, &ifp->if_multiaddrs, ifma_link) {
 			if (ifma->ifma_addr->sa_family != AF_LINK)
@@ -2496,6 +2668,25 @@ fxp_mc_addrs(struct fxp_softc *sc)
 			nmcasts++;
 		}
 		IF_ADDR_UNLOCK(ifp);
+#else
+	{
+	/* UNTESTED */
+	struct ether_multi     *enm;
+	struct ether_multistep step;
+	ETHER_FIRST_MULTI(step, (struct arpcom*)ifp, enm);
+	while ( enm != NULL ) {
+		if (nmcasts >= MAXMCADDR) {
+			sc->flags |= FXP_FLAG_ALL_MCAST;
+			nmcasts = 0;
+		break;
+		}
+		bcopy(enm->enm_addrlo,
+		    &sc->mcsp->mc_addr[nmcasts][0], ETHER_ADDR_LEN);
+		nmcasts++;
+		ETHER_NEXT_MULTI( step, enm );
+	}
+	}
+#endif
 	}
 	mcsp->mc_cnt = htole16(nmcasts * ETHER_ADDR_LEN);
 	return (nmcasts);
@@ -2684,6 +2875,7 @@ fxp_load_ucode(struct fxp_softc *sc)
 	sc->flags |= FXP_FLAG_UCODE;
 }
 
+#ifndef RTEMS_SYSCTL_NOTYETSUP
 static int
 sysctl_int_range(SYSCTL_HANDLER_ARGS, int low, int high)
 {
@@ -2714,3 +2906,4 @@ sysctl_hw_fxp_bundle_max(SYSCTL_HANDLER_ARGS)
 {
 	return (sysctl_int_range(oidp, arg1, arg2, req, 1, 0xffff));
 }
+#endif

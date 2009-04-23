@@ -167,6 +167,9 @@ struct fxp_softc {
 	uint32_t mcs_addr;		/* DMA address of the multicast cmd */
 	struct ifmedia sc_media;	/* media information */
 	device_t miibus;
+#ifdef __rtems__
+	int    phyidx;
+#endif
 	device_t dev;
 	int tunable_int_delay;		/* interrupt delay value for ucode */
 	int tunable_bundle_max;		/* max # frames per interrupt (ucode) */
