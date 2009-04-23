@@ -39,6 +39,8 @@ extern driver_t libbsdport_re_driver;
  *       of qemu.
  */
 extern driver_t libbsdport_le_pci_driver;
+/* Intel E100 chips */
+extern driver_t libbsdport_fxp_driver;
 
 /* Generic driver attach function (can be used in rtems_bsdnet_ifconfig).
  * This routine selects a driver/device combination based on
