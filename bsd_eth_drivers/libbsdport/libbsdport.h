@@ -128,6 +128,17 @@ static inline void membarrier_w()  { asm volatile("eieio":::"memory"); }
 #error "Unknown CPU endianness"
 #endif
 
+static __inline void
+le32enc(void *pp, uint32_t u)
+{
+  unsigned char *p = (unsigned char *)pp;
+
+  p[0] = u & 0xff;
+  p[1] = (u >> 8) & 0xff;
+  p[2] = (u >> 16) & 0xff;
+  p[3] = (u >> 24) & 0xff;
+}
+
 #include <mutex.h>
 #include <callout.h>
 
@@ -175,12 +186,20 @@ static inline void membarrier_w()  { asm volatile("eieio":::"memory"); }
 #define PCIR_POWER_STATUS 0x4
 #endif
 
+#ifndef PCIR_CACHELNSZ
+#define PCIR_CACHELNSZ PCI_CACHE_LINE_SIZE
+#endif
+
 #ifndef PCIM_PSTAT_PME
 #define PCIM_PSTAT_PME       0x8000
 #endif
 
 #ifndef PCIM_PSTAT_PMEENABLE
 #define PCIM_PSTAT_PMEENABLE 0x0100
+#endif
+
+#ifndef PCIM_CMD_MWRICEN
+#define PCIM_CMD_MWRICEN PCI_COMMAND_INVALIDATE
 #endif
 
 #ifndef PCIY_PMG
@@ -257,6 +276,12 @@ static inline uint16_t
 pci_get_subdevice(device_t dev)
 {
 	return pci_read_config(dev, PCIR_SUBDEV_0, 2);
+}
+
+static inline uint8_t
+pci_get_revid(device_t dev)
+{
+  return pci_read_config(dev, PCIR_REVID, 1);
 }
 
 static inline void
@@ -362,12 +387,14 @@ contigfree(void *ptr, size_t size, int type);
 #define __FBSDID(x)
 #define MODULE_DEPEND(x1,x2,x3,x4,x5)
 
-#define mii_mediachg(mii) do {} while (0)
-
 void *
 real_libc_malloc(size_t);
 
 void
 real_libc_free(void*);
+
+extern int libbsdport_bootverbose;
+/* Try not to pollute global namespace */
+#define bootverbose libbsdport_bootverbose
 
 #endif
