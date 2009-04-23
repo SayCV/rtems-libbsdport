@@ -301,6 +301,7 @@ TILLAC_M4_IF_PRESENT([bsd_eth_drivers],
 	AC_CONFIG_FILES([bsd_eth_drivers/if_le/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_pcn/Makefile])
 	AC_CONFIG_FILES([bsd_eth_drivers/if_re/Makefile])
+	AC_CONFIG_FILES([bsd_eth_drivers/if_fxp/Makefile])
 	all_subdirs="${all_subdirs} bsd_eth_drivers"
 	if test "$ac_cv_func_pci_find_device" = "yes" ; then
 ##		if test "${host_cpu}" = i386 && test ! "${have_bspext}" = yes ; then
