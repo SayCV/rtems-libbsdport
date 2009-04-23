@@ -50,6 +50,16 @@ struct ifmedia_entry *ifmen, *ifmep, *ifme;
 	}
 }
 
+void
+ifmedia_removeall(struct ifmedia *ifm)
+{
+struct ifmedia_entry *ifmen, *ifmep, *ifme;
+		for ( ifmep = LIST_FIRST(&ifm->ifm_list); ifmep; ifmep = ifmen ) {
+			ifmen = LIST_NEXT(ifmep, ifm_list);
+			free(ifmep, M_DEVBUF);
+		}
+}
+
 int
 ifmedia_ioctl(struct ifnet *ifp, struct ifreq *ifr, struct ifmedia *ifm, u_long cmd)
 {
