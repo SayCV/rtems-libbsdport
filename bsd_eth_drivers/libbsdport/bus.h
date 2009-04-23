@@ -17,6 +17,12 @@ typedef enum {
 
 struct resource;
 
+struct resource_spec {
+	int type;
+	int rid;
+	int flags;
+};
+
 typedef bus_addr_t bus_space_handle_t;
 
 /* The 'bus_space_xxx()' inlines can be helped if the
@@ -140,9 +146,16 @@ BUS_SPACE_DECL(u_int8_t,  byte, 1, 8)
 /* flags (1<<31) means unsupported */
 #define RF_ACTIVE       (1<<1)
 #define RF_SHAREABLE    (1<<2)
+#define RF_OPTIONAL     (1<<3)
 
 struct resource *
 bus_alloc_resource_any(device_t dev, int type, int *prid, unsigned flags);
+
+int
+bus_alloc_resources(device_t dev, struct resource_spec *rs, struct resource **res);
+
+void
+bus_release_resources(device_t dev, const struct resource_spec *rs, struct resource **res);
 
 #define FILTER_STRAY 1
 #define FILTER_HANDLED 0
@@ -200,6 +213,37 @@ rman_get_bushandle(struct resource *r);
 bus_space_tag_t
 rman_get_bustag(struct resource *r);
 
+/* Newer API (releng 7_1) */
+static inline u_int8_t bus_read_1(struct resource *r, bus_size_t o)
+{
+	return bus_space_read_1(rman_get_bustag(r), rman_get_bushandle(r), o);
+}
+
+static inline u_int16_t bus_read_2(struct resource *r, bus_size_t o)
+{
+	return bus_space_read_2(rman_get_bustag(r), rman_get_bushandle(r), o);
+}
+
+static inline u_int32_t bus_read_4(struct resource *r, bus_size_t o)
+{
+	return bus_space_read_4(rman_get_bustag(r), rman_get_bushandle(r), o);
+}
+
+static inline void bus_write_1(struct resource *r, bus_size_t o, u_int8_t v)
+{
+	bus_space_write_1(rman_get_bustag(r), rman_get_bushandle(r), o, v);
+}
+
+static inline void bus_write_2(struct resource *r, bus_size_t o, u_int16_t v)
+{
+	bus_space_write_4(rman_get_bustag(r), rman_get_bushandle(r), o, v);
+}
+
+static inline void bus_write_4(struct resource *r, bus_size_t o, u_int32_t v)
+{
+	bus_space_write_4(rman_get_bustag(r), rman_get_bushandle(r), o, v);
+}
+
 #ifndef BUS_DMA_NOWAIT	
 /* ignored anyways */
 #define BUS_DMA_NOWAIT 0
@@ -223,6 +267,10 @@ rman_get_bustag(struct resource *r);
 #ifndef BUS_DMA_ALLOCNOW	
 /* ignored anyways */
 #define BUS_DMA_ALLOCNOW 0
+#endif
+
+#ifndef BUS_DMA_ZERO
+#define BUS_DMA_ZERO 1
 #endif
 
 /* unused */
@@ -255,6 +303,12 @@ typedef void *bus_dmamap_t;
 
 int
 bus_dma_tag_create(void *parent, unsigned alignment, unsigned bounds, uint32_t lowadd, uint32_t hiaddr, void (*filter)(void*), void *filterarg, unsigned maxsize, int nsegs, unsigned maxsegsize, unsigned flags, void (*lockfunc)(void*), void *lockarg, bus_dma_tag_t *ptag);
+
+/* Dummy NULL fcn pointer */
+#define busdma_lock_mutex 0
+
+extern uint32_t __busdma_dummy_Giant;
+#define Giant __busdma_dummy_Giant
 
 void
 bus_dma_tag_destroy(bus_dma_tag_t tag);
@@ -301,7 +355,7 @@ bus_get_dma_tag(device_t dev)
 typedef void bus_dmamap_callback_t (void *arg, bus_dma_segment_t *segs, int nseg, int error);
 
 static inline int
-bus_dmamap_load(bus_dma_tag_t tag, bus_dmamap_t map, caddr_t vaddr, bus_size_t size, bus_dmamap_callback_t cb, void *arg, unsigned flags)
+bus_dmamap_load(bus_dma_tag_t tag, bus_dmamap_t map, void *vaddr, bus_size_t size, bus_dmamap_callback_t cb, void *arg, unsigned flags)
 {
 bus_dma_segment_t segs[1];
 	segs[0].ds_addr = CPU2BUSADDR(vaddr);
@@ -339,5 +393,10 @@ bus_size_t   sz;
 
 #define bus_dmamap_create(tag, flags, pmap) ( *(pmap) = 0, 0 )
 #define bus_dmamap_destroy(tag, map) do {} while (0)
+
+int
+resource_int_value(const char *name, int unit, const char *resname, int *result);
+int
+resource_long_value(const char *name, int unit, const char *resname, long *result);
 
 #endif

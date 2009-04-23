@@ -96,6 +96,41 @@ int        isio;
 	return (struct resource*)0;
 }
 
+int
+bus_alloc_resources(device_t dev, struct resource_spec *rs,
+    struct resource **res)
+{
+	int i;
+
+	for (i = 0; rs[i].type != -1; i++)
+		res[i] = NULL;
+	for (i = 0; rs[i].type != -1; i++) {
+		res[i] = bus_alloc_resource_any(dev,
+		    rs[i].type, &rs[i].rid, rs[i].flags);
+		if (res[i] == NULL && !(rs[i].flags & RF_OPTIONAL)) {
+			bus_release_resources(dev, rs, res);
+			return (ENXIO);
+		}
+	}
+	return (0);
+}
+
+void
+bus_release_resources(device_t dev, const struct resource_spec *rs,
+    struct resource **res)
+{
+	int i;
+
+	for (i = 0; rs[i].type != -1; i++)
+		if (res[i] != NULL) {
+			bus_release_resource(
+			    dev, rs[i].type, rs[i].rid, res[i]);
+			res[i] = NULL;
+		}
+}
+
+
+
 struct irq_cookie {
 	device_t        dev;
 	driver_filter_t handler;
@@ -142,8 +177,6 @@ bus_setup_intr(device_t dev, struct resource *r, int flags, driver_filter_t filt
 {
 int                rval;
 struct irq_cookie *info = 0;
-
-
 
 	if ( filter && handler ) {
 		rtems_panic("bus_setup_intr for both: filter & handler not implemented\n");
@@ -247,10 +280,13 @@ int
 bus_dmamem_alloc(bus_dma_tag_t tag, void **p_vaddr, unsigned flags, bus_dmamap_t *p_map)
 {
 uintptr_t a;
-	if ( ! (*p_map = malloc(tag->maxsize + tag->alignment, M_DEVBUF, M_NOWAIT)) )
+unsigned  sz = tag->maxsize + tag->alignment;
+	if ( ! (*p_map = malloc(sz, M_DEVBUF, M_NOWAIT)) )
 		return ENOMEM;
 	a = ((uintptr_t)*p_map + tag->alignment - 1 ) & ~(tag->alignment - 1);
 	*p_vaddr = (void*)a;
+	if ( (BUS_DMA_ZERO & flags) )
+		memset(*p_map, 0, sz);
 	return 0;
 }
 
@@ -258,4 +294,20 @@ void
 bus_dmamem_free(bus_dma_tag_t tag, void *vaddr, bus_dmamap_t map)
 {
 	free(map, M_DEVBUF);
+}
+
+/* Dummy handle for Giant mutex */
+uint32_t __busdma_dummy_Giant = 0;
+
+int
+resource_int_value(const char *name, int unit, const char *resname, int *result)
+{
+	/* not implemented */
+	return ENOENT;
+}
+int
+resource_long_value(const char *name, int unit, const char *resname, long *result)
+{
+	/* not implemented */
+	return ENOENT;
 }
