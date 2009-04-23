@@ -46,7 +46,8 @@ mtx_destroy(struct mtx *m)
 }
 
 /* what ? */
-#define MA_OWNED   1
+#define MA_OWNED    1
+#define MA_NOTOWNED 0
 static inline void
 mtx_assert(struct mtx *m, int what)
 {
