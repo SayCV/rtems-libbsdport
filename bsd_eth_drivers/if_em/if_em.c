@@ -413,8 +413,6 @@ TUNABLE_INT("hw.em.rx_process_limit", &em_rx_process_limit);
 #endif
 
 #ifdef __rtems__
-int em_bootverbose = 0;
-#define bootverbose em_bootverbose
 #undef static
 #define static static
 #endif
