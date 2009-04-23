@@ -100,6 +100,9 @@ LIST_KEY_DECL(k);
 			n = c->c_next;
 			if ( c->c_time <= 0 ) {
 				/* this one expired */
+				rtems_interrupt_disable(k1);
+					c->c_flags &= ~ CALLOUT_PENDING;
+				rtems_interrupt_enable(k1);
 				c_deq(c);
 				if ( c->c_func )
 					c->c_func(c->c_arg);
@@ -173,31 +176,38 @@ bail:
 
 /* We cannot stop a callout that's in progress */
 
-void
+int
 callout_stop(struct callout *c)
 {
+rtems_interrupt_level l;
 LIST_KEY_DECL(k);
 
 	if ( !c->c_pprev )
-		return;	/* not currently on a list */
+		return 0;	/* not currently on a list */
 
 	LIST_LOCK(k);
 		/* remove from list */
 		c_deq(c);
+		rtems_interrupt_disable(l);
+		c->c_flags &= ~(CALLOUT_ACTIVE | CALLOUT_PENDING);
+		rtems_interrupt_enable(l);
 	LIST_UNLOCK(k);
+
+	return 1;
 }
 
 
-void
+int
 callout_reset(struct callout *c, int ticks, timeout_t fn, void *arg)
 {
+rtems_interrupt_level l;
 LIST_KEY_DECL(k);
-int                 i;
+int                 i, rval;
 
 	if ( ticks <= 0 )
 		ticks = 1;
 
-	callout_stop(c);
+	rval = callout_stop(c);
 
 	c->c_func = fn;
 	c->c_arg  = arg;
@@ -209,7 +219,13 @@ int                 i;
 	/* enqueue */
 	c_enq(&c_wheel[i], c);
 
+	rtems_interrupt_disable(l);
+		c->c_flags |= (CALLOUT_ACTIVE | CALLOUT_PENDING);
+	rtems_interrupt_enable(l);
+
 	LIST_UNLOCK(k);
+
+	return rval;
 }
 
 static rtems_id callout_tid = 0;

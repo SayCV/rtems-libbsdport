@@ -18,16 +18,56 @@ struct callout {
 	void            *c_arg;
 	struct mtx      *c_mtx;
 	callout_time_t   c_time; 
+	unsigned         c_flags;
 };
+
+#define CALLOUT_PENDING (1<<0)
+#define CALLOUT_ACTIVE  (1<<1)
+
+/*
+ * Strictly, we don't need any protection
+ * because the global network semaphore
+ * takes care; however we want to 
+ */
+static inline int
+callout_active(struct callout *p_c)
+{
+int rval;
+rtems_interrupt_level l;
+	rtems_interrupt_disable(l);
+		rval = p_c->c_flags & CALLOUT_ACTIVE;
+	rtems_interrupt_enable(l);
+	return rval;	
+}
+
+static inline int
+callout_pending(struct callout *p_c)
+{
+int rval;
+rtems_interrupt_level l;
+	rtems_interrupt_disable(l);
+		rval = p_c->c_flags & CALLOUT_PENDING;
+	rtems_interrupt_enable(l);
+	return rval;	
+}
+
+static inline void
+callout_decativate(struct callout *p_c)
+{
+rtems_interrupt_level l;
+	rtems_interrupt_disable(l);
+		p_c->c_flags &= ~CALLOUT_ACTIVE;
+	rtems_interrupt_enable(l);
+}
 
 /* We cannot stop a callout that's in progress */
 
-void
+int
 callout_stop(struct callout *c);
 
 #define callout_drain callout_stop
 
-void
+int
 callout_reset(struct callout *c, int ticks, void (*fn)(void*), void *arg);
 
 void
