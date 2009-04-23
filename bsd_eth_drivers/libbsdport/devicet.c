@@ -12,7 +12,12 @@
 #include <sys/bus.h>
 #include "libbsdport_api.h"
 
+<<<<<<< devicet.c
+#define  DEBUG 0
+int libbsdportAttachVerbose = DEBUG;
+=======
 #undef  DEBUG
+>>>>>>> 1.1.1.2
 
 extern void real_libc_free(void*);
 
@@ -65,11 +70,11 @@ devattach(device_t dev, int unit, struct rtems_bsdnet_ifconfig *cfg)
 {
 int error;
 
-#ifdef DEBUG
-	printf("Now attaching %s%d: (0x%x:%x.%x)\n",
-		dev->name, unit, 
-		dev->bushdr.pci.bus, dev->bushdr.pci.dev, dev->bushdr.pci.fun);
-#endif
+	if ( libbsdportAttachVerbose ) {
+		printf("Now attaching %s%d: (0x%x:%x.%x)\n",
+			dev->name, unit, 
+			dev->bushdr.pci.bus, dev->bushdr.pci.dev, dev->bushdr.pci.fun);
+	}
 
 	dev->unit     = unit;
 	dev->ifconfig = cfg;
@@ -247,6 +252,8 @@ device_t tmpdev;
 int      error = 0;
 int      bdfunit;
 
+int      n_bus;
+
 		if ( !attaching )
 			return ENOTSUP;
 
@@ -256,20 +263,33 @@ int      bdfunit;
 			wantedunit |= 1<<31;
 			nm[0]=0;
 		}
-#ifdef DEBUG
-		printf("Wanted unit is 0x%x, pattern '%s'\n", wantedunit, nm);
+		if ( libbsdportAttachVerbose )
+			printf("Wanted unit is 0x%x, pattern '%s'\n", wantedunit, nm);
+
+		n_bus = pci_bus_count();
+#ifdef __i386__
+		/* ugliest of all hacks -- RTEMS routine is currently (4.9)
+         * still broken; it reports the (0-based) highest bus number
+         * instead of the count.
+         */
+		n_bus++;
 #endif
 
 		unit = 0;
 		for ( i=0; (dr=libbsdport_netdriver_table[i]); i++ ) {
+
+			/* unused slot ? */
+			if ( 0 == dr->name && 0 == dr->methods )
+				continue;
+
 			/* Find matching driver */
-#ifdef DEBUG
-			printf("Trying driver '%s' ...", dr->name);
-#endif
+			if ( libbsdportAttachVerbose )
+				printf("Trying driver '%s' ...", dr->name);
+
 			if ( matches(dr, nm) ) {
-#ifdef DEBUG
-			printf("MATCH\n");
-#endif
+
+				if ( libbsdportAttachVerbose )
+					printf("MATCH\n");
 
 				assert( dr->methods );
 
@@ -281,7 +301,7 @@ int      bdfunit;
 				}
 
 				dev = devalloc(dr);
-				for ( b=0; b<pci_bus_count(); b++)
+				for ( b=0; b<n_bus; b++ )
 					for ( d=0; d<PCI_MAX_DEVICES; d++ ) {
 						for ( f=0; f<pci_num_functions(b,d); f++ ) {
 							if ( ! pci_is_ether(b,d,f) )
@@ -293,10 +313,10 @@ int      bdfunit;
 
 							bdfunit = (b<<8) | PCI_DEVFN(d,f);
 
-#ifdef DEBUG
-							printf("Probing PCI 0x%x:%x.%x\n",
-								bdfunit>>8, PCI_SLOT(bdfunit), PCI_FUNC(bdfunit));
-#endif
+							if ( libbsdportAttachVerbose ) {
+								printf("Probing PCI 0x%x:%x.%x\n",
+										bdfunit>>8, PCI_SLOT(bdfunit), PCI_FUNC(bdfunit));
+							}
 
 							/* has this device been attached already ? */
 							if ( (tmpdev = devattached(dev)) ) {
@@ -319,9 +339,9 @@ int      bdfunit;
 										/* wanted unit == 0 means next avail.
 										 * unit is acceptable.
 										 */
-#ifdef DEBUG
-										printf("->SUCCESS\n");
-#endif
+										if ( libbsdportAttachVerbose )
+											printf("->SUCCESS\n");
+
 										if ( 0 == wantedunit || UNITMATCH(wantedunit, unit, bdfunit) ) {
 												error = devattach(dev, thisunit, cfg);
 												if ( !error )
@@ -331,9 +351,8 @@ int      bdfunit;
 										break;
 
 									default:
-#ifdef DEBUG
-										printf("->FAILED\n");
-#endif
+										if ( libbsdportAttachVerbose )
+											printf("->FAILED\n");
 										/* probe failed */
 										break;
 								}
@@ -343,9 +362,11 @@ int      bdfunit;
 					} /* for all busses + slots */
 				devfree(dev); dev = 0;
 			} /* matching driver */
-#ifdef DEBUG
-			else printf("NO MATCH\n");
-#endif
+			else
+			{
+				if ( libbsdportAttachVerbose )
+					printf("NO MATCH\n");
+			}
 		} /* for all drivers */
 
 		/* Nothing found */
