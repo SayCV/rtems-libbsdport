@@ -2755,6 +2755,10 @@ re_ioctl(struct ifnet *ifp, ioctl_command_t command, caddr_t data)
 		break;
 	case SIOCADDMULTI:
 	case SIOCDELMULTI:
+#ifdef __rtems__
+		if ( ETHER_SIOCMULTIFRAG(error, command, ifr, ifp) )
+			break;
+#endif
 		RL_LOCK(sc);
 		re_setmulti(sc);
 		RL_UNLOCK(sc);
