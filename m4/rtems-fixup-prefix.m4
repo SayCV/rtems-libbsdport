@@ -8,7 +8,7 @@
 #
 #  - if user says nothing then
 #
-#      exec-prefix -> ${prefix}/target/ssrlApps/<cpu>/<bsp>/
+#      exec-prefix -> ${prefix}/<cpu>-rtems/<bsp>/
 #      includedir  -> ${exec-prefix}/include
 #    
 AC_DEFUN([TILLAC_RTEMS_FIXUP_PREFIXES],
@@ -31,7 +31,7 @@ if test "${enable_std_rtems_installdirs}" = "yes" ; then
 else
 # should be correct also for multilibbed build (rtems_bsp empty)
 	if test "${exec_prefix}" = "NONE" ; then
-		exec_prefix='${prefix}/target/ssrlApps/${host_cpu}-${host_os}/'${enable_rtemsbsp}/
+		exec_prefix='${prefix}/${host_cpu}-${host_os}/'${enable_rtemsbsp}/
 		ac_configure_args="${ac_configure_args} --exec-prefix='${exec_prefix}'"
 	fi
 	# Unfortunately we have no way to check if includedir was set by the user

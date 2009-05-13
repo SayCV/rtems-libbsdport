@@ -1,4 +1,4 @@
-AM_CPPFLAGS     = -Wall
+AM_CPPFLAGS     = -Wall -D__BSD_VISIBLE
 AM_CFLAGS       = -Wall
 AM_CXXFLAGS     = -Wall
 AM_CCASFLAGS    = 
