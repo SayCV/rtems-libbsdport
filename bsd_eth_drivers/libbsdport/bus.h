@@ -236,7 +236,7 @@ static inline void bus_write_1(struct resource *r, bus_size_t o, u_int8_t v)
 
 static inline void bus_write_2(struct resource *r, bus_size_t o, u_int16_t v)
 {
-	bus_space_write_4(rman_get_bustag(r), rman_get_bushandle(r), o, v);
+	bus_space_write_2(rman_get_bustag(r), rman_get_bushandle(r), o, v);
 }
 
 static inline void bus_write_4(struct resource *r, bus_size_t o, u_int32_t v)

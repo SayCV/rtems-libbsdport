@@ -1,3 +1,5 @@
+	2009/05/12 (TS)
+	- bugfix: bus_write_2() must map to bus_space_write_2 (not 4)
 	2009/04/22 (TS)
 	- imported SLAC version into OAR repository; added FXP driver.
 	2008/03/22 (TS)
