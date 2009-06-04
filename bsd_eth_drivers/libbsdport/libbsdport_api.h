@@ -3,6 +3,7 @@
 
 #include <rtems.h>
 #include <rtems/rtems_bsdnet.h>
+#include <stdio.h>
 
 /* $Id$ */
 
