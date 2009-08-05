@@ -1,4 +1,11 @@
 2009-08-05  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/alldrv.c: reactivate weak aliases for all
+	known/supported drivers. This magic allows the user to
+	just link the desired (sub-)set of drivers.
+
+2009-08-05  Till Straumann <Till.Straumann@TU-Berlin.de>
+
 	* libbsdport/libbsdport.h: define _KERNEL only if not defined already
 	(e.g., from Makefile).
 
