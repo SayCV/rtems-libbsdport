@@ -4,7 +4,9 @@
 #include <rtems.h>
 #include <sys/param.h>
 
+#ifndef _KERNEL
 #define _KERNEL
+#endif
 #include <rtems/rtems_bsdnet.h>
 #include <rtems/rtems_bsdnet_internal.h>
 

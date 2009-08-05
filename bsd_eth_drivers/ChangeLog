@@ -1,3 +1,7 @@
+2009-08-05  Till Straumann <Till.Straumann@TU-Berlin.de>
+	* libbsdport/libbsdport.h: define _KERNEL only if not defined already
+	(e.g., from Makefile).
+
 2009-06-04	Joel Sherrill <joel.sherrill@oarcorp.com>
 
 	* libbsdport/alldrv.c, libbsdport/libbsdport_api.h: Add include
