@@ -2661,7 +2661,11 @@ em_allocate_pci_resources(struct adapter *adapter)
 	    rman_get_bustag(adapter->res_memory);
 	adapter->osdep.mem_bus_space_handle =
 	    rman_get_bushandle(adapter->res_memory);
+#ifndef __rtems__
 	adapter->hw.hw_addr = (uint8_t*)&adapter->osdep.mem_bus_space_handle;
+#else
+	adapter->hw.hw_addr = (uint8_t*)adapter->res_memory;
+#endif
 
 	/* Only older adapters use IO mapping */
 	if ((adapter->hw.mac.type >= e1000_82543) && /* __rtems__ >82542 -> >= 82543 */
@@ -2689,7 +2693,12 @@ em_allocate_pci_resources(struct adapter *adapter)
 			    "ioport\n");
 			return (ENXIO);
 		}
+#ifndef __rtems__
 		adapter->hw.io_base = 0;
+#else
+		adapter->hw.io_base =   (unsigned long)adapter->res_ioport
+                              & PCI_BASE_ADDRESS_IO_MASK;
+#endif
 		adapter->osdep.io_bus_space_tag =
 		    rman_get_bustag(adapter->res_ioport);
 		adapter->osdep.io_bus_space_handle =
@@ -3279,9 +3288,15 @@ em_initialize_transmit_unit(struct adapter *adapter)
 	E1000_WRITE_REG(&adapter->hw, E1000_TDT, 0);
 	E1000_WRITE_REG(&adapter->hw, E1000_TDH, 0);
 
+#ifndef __rtems__
 	HW_DEBUGOUT2("Base = %x, Length = %x\n",
 	    E1000_READ_REG(&adapter->hw, E1000_TDBAL),
 	    E1000_READ_REG(&adapter->hw, E1000_TDLEN));
+#else
+	HW_DEBUGOUT2("Base = %x, Length = %x\n",
+	    (unsigned)E1000_READ_REG(&adapter->hw, E1000_TDBAL),
+	    (unsigned)E1000_READ_REG(&adapter->hw, E1000_TDLEN));
+#endif
 
 	/* Set the default values for the Tx Inter Packet Gap timer */
 	switch (adapter->hw.mac.type) {

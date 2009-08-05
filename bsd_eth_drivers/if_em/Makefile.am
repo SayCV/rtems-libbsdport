@@ -31,6 +31,7 @@ libif_em_a_DEPENDENCIES          = $(libif_em_a_LIBADD)
 
 lib_LIBRARIES                    = libif_em.a
 
+AM_CPPFLAGS                     += -D_KERNEL
 AM_CPPFLAGS                     += -I$(srcdir)
 AM_CPPFLAGS                     += -I$(srcdir)/../libbsdport -I../libbsdport  -I../libbsdport/dummyheaders
 AM_CPPFLAGS                     += $(CPPFLAGS_82542_SUPPORT_$(ENBL_82542_SUPPORT))

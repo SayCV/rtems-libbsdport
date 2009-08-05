@@ -1,5 +1,17 @@
 2009-08-05  Till Straumann <Till.Straumann@TU-Berlin.de>
 
+	* if_em/Makefile.am, if_em/e1000_osdep.h, if_em/if_em.c:
+	Changed 'e1000_osdep.h' to provide stdalone I/O methods for
+	select architectures (x86 and PPC -- others fall back on
+	libbsdport/bus.h). This lets the low-level driver (everything
+	except for 'if_em.c/if_em.h') API be independent of
+	BSD networking and libbsdport which is desirable since
+	certain applications may wish to just use the low-level
+	API for implementing dedicated 'raw-ethernet' drivers
+	for BSD-independent, proprietary GigE communication.
+
+2009-08-05  Till Straumann <Till.Straumann@TU-Berlin.de>
+
 	* libbsdport/alldrv.c: reactivate weak aliases for all
 	known/supported drivers. This magic allows the user to
 	just link the desired (sub-)set of drivers.

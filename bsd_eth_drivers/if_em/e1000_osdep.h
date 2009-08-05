@@ -37,9 +37,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define _FREEBSD_OS_H_
 
 #include <rtems.h>
-#define _KERNEL
-#include <rtems/rtems_bsdnet_internal.h>
 #include <bsp.h>
+#include <rtems/pci.h>
+#include <vm/vm.h> /* for non-_KERNEL boolean_t :-( */
+
+#ifdef   _KERNEL
+#include <rtems/rtems_bsdnet_internal.h>
 
 #include <sys/types.h>
 #include <sys/param.h>
@@ -50,7 +53,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <sys/malloc.h>
 #include <sys/kernel.h>
 #include <sys/bus.h>
-#include <rtems/pci.h>
 
 #define ASSERT(x) if(!(x)) panic("EM: x")
 
@@ -69,13 +71,30 @@ POSSIBILITY OF SUCH DAMAGE.
 	#define DEBUGOUT3(S,A,B,C)
 	#define DEBUGOUT7(S,A,B,C,D,E,F,G)
 
+#include <devicet.h>
+
+struct e1000_osdep
+{
+	uint32_t mem_bus_space_handle;
+	uint32_t io_bus_space_handle;
+	uint32_t flash_bus_space_handle;
+	/* these are currently unused; present for freebsd compatibility only */
+	uint32_t mem_bus_space_tag;
+	uint32_t io_bus_space_tag;
+	uint32_t flash_bus_space_tag;
+	device_t dev;	
+};
+
 #define STATIC				static
+#endif
+
 #ifndef FALSE
 #define FALSE               0
 #endif
 #ifndef TRUE
 #define TRUE                1
 #endif
+
 #define CMD_MEM_WRT_INVALIDATE          0x0010  /* BIT_4 */
 #define PCI_COMMAND_REGISTER            PCIR_COMMAND
 
@@ -92,142 +111,8 @@ typedef int32_t		s32;
 typedef int16_t		s16;
 typedef int8_t		s8 ;
 
-#include <devicet.h>
-
-struct e1000_osdep
-{
-	uint32_t mem_bus_space_handle;
-	uint32_t io_bus_space_handle;
-	uint32_t flash_bus_space_handle;
-	/* these are currently unused; present for freebsd compatibility only */
-	uint32_t mem_bus_space_tag;
-	uint32_t io_bus_space_tag;
-	uint32_t flash_bus_space_tag;
-	device_t dev;	
-};
-
-typedef volatile uint32_t __attribute__((may_alias)) *__uint32_a_p_t;
-typedef volatile uint16_t __attribute__((may_alias)) *__uint16_a_p_t;
-typedef volatile uint8_t  __attribute__((may_alias)) * __uint8_a_p_t;
-
-#ifdef __PPC__
-#include <libcpu/io.h>
-static inline uint8_t __in_8(uint32_t base, uint32_t offset)
-{
-__uint8_a_p_t a = (__uint8_a_p_t)(base+offset);
-uint8_t     rval;
-	__asm__ __volatile__(
-		"sync;\n"
-		"lbz%U1%X1 %0,%1;\n"
-		"twi 0,%0,0;\n"
-		"isync" : "=r" (rval) : "m"(*a));
-	return rval;
-}
-
-static inline void __out_8(uint32_t base, uint32_t offset, uint8_t val)
-{
-__uint8_a_p_t a = (__uint8_a_p_t)(base+offset);
-	__asm__ __volatile__(
-		"stb%U0%X0 %1,%0; eieio" : "=m" (*a) : "r"(val)
-	);
-}
-
-static inline uint16_t __in_le16(uint32_t base, uint32_t offset)
-{
-__uint16_a_p_t a = (__uint16_a_p_t)(base+offset);
-uint16_t     rval;
-	__asm__ __volatile__(
-		"sync;\n"
-		"lhbrx %0,0,%1;\n"
-		"twi 0,%0,0;\n"
-		"isync" : "=r" (rval) : "r"(a), "m"(*a));
-	return rval;
-}
-
-static inline void __out_le16(uint32_t base, uint32_t offset, uint16_t val)
-{
-__uint16_a_p_t a = (__uint16_a_p_t)(base+offset);
-	__asm__ __volatile__(
-		"sync; sthbrx %1,0,%2" : "=m" (*a) : "r"(val), "r"(a)
-	);
-}
-
-static inline uint32_t __in_le32(uint32_t base, uint32_t offset)
-{
-__uint32_a_p_t a = (__uint32_a_p_t)(base+offset);
-uint32_t     rval;
-	__asm__ __volatile__(
-		"sync;\n"
-		"lwbrx %0,0,%1;\n"
-		"twi 0,%0,0;\n"
-		"isync" : "=r" (rval) : "r"(a), "m"(*a));
-	return rval;
-}
-
-static inline void __out_le32(uint32_t base, uint32_t offset, uint32_t val)
-{
-__uint32_a_p_t a = (__uint32_a_p_t)(base+offset);
-	__asm__ __volatile__(
-		"sync; stwbrx %1,0,%2" : "=m" (*a) : "r"(val), "r"(a)
-	);
-}
-
-#ifdef _IO_BASE
-static inline void __outport_dword(uint32_t base, uint32_t off, uint32_t val)
-{
-	__out_le32(_IO_BASE+base+off,0,val);
-}
-#else
-#error "_IO_BASE needs to be defined by BSP (bsp.h)"
-#endif
-
-#elif defined(__i386__)
-#include <libcpu/cpu.h>
-static inline uint8_t __in_8(uint32_t base, uint32_t offset)
-{
-__uint8_a_p_t a = (__uint8_a_p_t)(base+offset);
-	return *a;
-}
-
-static inline void __out_8(uint32_t base, uint32_t offset, uint8_t val)
-{
-__uint8_a_p_t a = (__uint8_a_p_t)(base+offset);
-	*a = val;
-}
-
-static inline uint16_t __in_le16(uint32_t base, uint32_t offset)
-{
-__uint16_a_p_t a = (__uint16_a_p_t)(base+offset);
-	return *a;
-}
-
-static inline void __out_le16(uint32_t base, uint32_t offset, uint16_t val)
-{
-__uint16_a_p_t a = (__uint16_a_p_t)(base+offset);
-	*a = val;
-}
-
-static inline uint32_t __in_le32(uint32_t base, uint32_t offset)
-{
-__uint32_a_p_t a = (__uint32_a_p_t)(base+offset);
-	return *a;
-}
-
-static inline void __out_le32(uint32_t base, uint32_t offset, uint32_t val)
-{
-__uint32_a_p_t a = (__uint32_a_p_t)(base+offset);
-	*a = val;
-}
-
-
-static inline void __outport_dword(uint32_t base, uint32_t off, uint32_t val)
-{
-	i386_outport_long( (base + off), val );
-}
-
-#else
-#error "not ported to this CPU architecture yet"
-#endif
+typedef volatile uint32_t __uint32_va_t __attribute__((may_alias));
+typedef volatile uint16_t __uint16_va_t __attribute__((may_alias));
 
 #ifdef NO_82542_SUPPORT
 #define E1000_REGISTER(hw, reg) reg
@@ -237,6 +122,99 @@ static inline void __outport_dword(uint32_t base, uint32_t off, uint32_t val)
 #endif
 
 #define E1000_WRITE_FLUSH(a) E1000_READ_REG(a, E1000_STATUS)
+
+/* Provide our own I/O so that the low-level driver API can
+ * be used independently from the BSD stuff.
+ * This is useful for people who want to use an e1000 adapter
+ * for special ethernet links that do not use BSD TCP/IP.
+ */
+#ifdef __PPC__
+
+#include <libcpu/io.h>
+
+static inline uint16_t __in_le16(uint8_t *base, uint32_t offset)
+{
+uint16_t     rval;
+    __asm__ __volatile__(
+        "lhbrx %0,%2,%1; eieio\n"
+            : "=r" (rval)
+            : "r"(base), "b"(offset), "m"(*(__uint16_va_t*)(base + offset))
+    );
+    return rval;
+}
+
+static inline __out_le16(uint8_t *base, uint32_t offset, uint16_t val)
+{
+    __asm__ __volatile__(
+        "sthbrx %1,%3,%2; eieio"
+            : "=o"(*(__uint16_va_t*)(base+offset))
+            : "r"(val), "r"(base), "b"(offset)
+    );
+}
+
+static inline uint32_t __in_le32(uint8_t *base, uint32_t offset)
+{
+uint32_t     rval;
+    __asm__ __volatile__(
+        "lwbrx %0,%2,%1; eieio\n"
+            : "=r" (rval)
+            : "r"(base), "b"(offset), "m"(*(__uint32_va_t*)(base + offset))
+    );
+    return rval;
+}
+
+static inline __out_le32(uint8_t *base, uint32_t offset, uint32_t val)
+{
+    __asm__ __volatile__(
+        "stwbrx %1,%3,%2; eieio"
+            : "=o"(*(__uint32_va_t*)(base+offset))
+            : "r"(val), "r"(base), "b"(offset)
+    );
+}
+
+#ifdef _IO_BASE
+static inline void __outport_dword(unsigned long base, uint32_t off, uint32_t val)
+{
+	__out_le32((uint8_t*)(_IO_BASE+base), off, val);
+}
+#else
+#error "_IO_BASE needs to be defined by BSP (bsp.h)"
+#endif
+
+#elif defined(__i386__)
+#include <libcpu/cpu.h>
+
+static inline uint16_t __in_le16(uint8_t *base, uint32_t offset)
+{
+	return *(__uint16_va_t*)(base + offset);
+}
+
+static inline void __out_le16(uint8_t *base, uint32_t offset, uint16_t val)
+{
+	*(__uint16_va_t*)(base + offset) = val;
+}
+
+static inline uint32_t __in_le32(uint8_t *base, uint32_t offset)
+{
+	return *(__uint32_va_t*)(base + offset);
+}
+
+static inline void __out_le32(uint8_t *base, uint32_t offset, uint32_t val)
+{
+	*(__uint32_va_t*)(base + offset) = val;
+}
+
+static inline void __outport_dword(unsigned long base, uint32_t off, uint32_t val)
+{
+	i386_outport_long( (base + off), val );
+}
+
+#else
+#warning "not ported to this CPU architecture yet -- using libbsdport I/O"
+#define  USE_LIBBSDPORT_IO
+#endif
+
+#ifdef USE_LIBBSDPORT_IO
 
 #define USE_EXPLICIT_BUSTAGS
 
@@ -392,6 +370,53 @@ static inline void __outport_dword(uint32_t base, uint32_t off, uint32_t val)
     bus_space_write_2(((struct e1000_osdep *)(hw)->back)->flash_bus_space_tag, \
         ((struct e1000_osdep *)(hw)->back)->flash_bus_space_handle, reg, value)
 #endif /* USE_EXPLICIT_BUSTAGS */
+
+#else /* USE_LIBBSDPORT_IO */
+
+/* Read from an absolute offset in the adapter's memory space */
+#define E1000_READ_OFFSET(hw, offset) \
+	__in_le32((hw)->hw_addr, offset)
+
+/* Write to an absolute offset in the adapter's memory space */
+#define E1000_WRITE_OFFSET(hw, offset, value) \
+	__out_le32((hw)->hw_addr, offset, value)
+
+/* Register READ/WRITE macros */
+
+#define E1000_READ_REG(hw, reg) \
+	__in_le32((hw)->hw_addr, E1000_REGISTER(hw, reg))
+
+#define E1000_WRITE_REG(hw, reg, value) \
+	__out_le32((hw)->hw_addr, E1000_REGISTER(hw, reg), value)
+
+#define E1000_READ_REG_ARRAY(hw, reg, index) \
+	__in_le32((hw)->hw_addr, E1000_REGISTER(hw, reg) + ((index)<< 2))
+
+#define E1000_WRITE_REG_ARRAY(hw, reg, index, value) \
+	__out_le32((hw)->hw_addr, E1000_REGISTER(hw, reg) + ((index)<< 2), value)
+
+#define E1000_READ_REG_ARRAY_DWORD E1000_READ_REG_ARRAY
+#define E1000_WRITE_REG_ARRAY_DWORD E1000_WRITE_REG_ARRAY
+
+#define E1000_WRITE_REG_IO(hw, reg, value) do { \
+	__outport_dword((hw)->io_base, 0, reg);     \
+	__outport_dword((hw)->io_base, 4, value);   \
+	} while (0)
+
+#define E1000_READ_FLASH_REG(hw, reg) \
+	__in_le32( (hw)->flash_address, reg )
+
+#define E1000_READ_FLASH_REG16(hw, reg) \
+	__in_le16( (hw)->flash_address, reg )
+
+#define E1000_WRITE_FLASH_REG(hw, reg, value) \
+	__out_le32( (hw)->flash_address, reg, value )
+
+#define E1000_WRITE_FLASH_REG16(hw, reg, value) \
+	__out_le16( (hw)->flash_address, reg, value )
+
+#endif /* USE_LIBBSDPORT_IO */
+
 
 #endif  /* _FREEBSD_OS_H_ */
 
