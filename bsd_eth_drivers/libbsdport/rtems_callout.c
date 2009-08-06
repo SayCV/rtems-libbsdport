@@ -186,6 +186,11 @@ LIST_KEY_DECL(k);
 		return 0;	/* not currently on a list */
 
 	LIST_LOCK(k);
+		/* have to check again */
+		if ( ! c->c_pprev ) {
+			LIST_UNLOCK(k);
+			return 0;
+		}
 		/* remove from list */
 		c_deq(c);
 		rtems_interrupt_disable(l);

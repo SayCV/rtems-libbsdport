@@ -1,3 +1,13 @@
+2009-08-06  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/rtems_callout.c: fixed possible race
+	condition. callout_stop() must check again from
+	critical/protected section of code if callout is still on
+	the list/active. Otherwise, the callout-task could
+	have executed and removed the callout between
+	callout_stop() checking the p_prev pointer and
+	entering the critical section.
+
 2009-08-05  Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* if_em/Makefile.am, if_em/e1000_osdep.h, if_em/if_em.c:
