@@ -1,5 +1,10 @@
 2009-08-15  Till Straumann <Till.Straumann@TU-Berlin.de>
 
+	* if_re/Makefile.am: added 'if_rlreg.h' to SOURCES so
+	that it is 'distributed'.
+
+2009-08-15  Till Straumann <Till.Straumann@TU-Berlin.de>
+
 	* if_em/31000_osdep.h: added missing 'void' return
 	type of __out_le32() inline function.
 
