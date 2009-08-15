@@ -1,3 +1,8 @@
+2009-08-15  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* if_em/31000_osdep.h: added missing 'void' return
+	type of __out_le32() inline function.
+
 2009-08-06  Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* libbsdport/rtems_callout.c: fixed possible race

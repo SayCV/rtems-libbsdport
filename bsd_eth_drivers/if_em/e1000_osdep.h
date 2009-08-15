@@ -143,7 +143,7 @@ uint16_t     rval;
     return rval;
 }
 
-static inline __out_le16(uint8_t *base, uint32_t offset, uint16_t val)
+static inline void __out_le16(uint8_t *base, uint32_t offset, uint16_t val)
 {
     __asm__ __volatile__(
         "sthbrx %1,%3,%2; eieio"
@@ -163,7 +163,7 @@ uint32_t     rval;
     return rval;
 }
 
-static inline __out_le32(uint8_t *base, uint32_t offset, uint32_t val)
+static inline void __out_le32(uint8_t *base, uint32_t offset, uint32_t val)
 {
     __asm__ __volatile__(
         "stwbrx %1,%3,%2; eieio"
