@@ -4,10 +4,19 @@ $(DUMMYHEADERS):
 	@if [ ! -d `dirname $@` ] ; then mkdir -p `dirname $@`; fi
 	@touch $@
 
+# if [ "$(echo $@ | sed -e 's/^\/.*/yes/')" = "yes" ]; then
+
 $(LINKS):
 	echo $@
 	if [ ! -d $(dir $@) ] ; then mkdir -p $(dir $@); fi
-	ln -s `echo $(dir $@) | sed -e 's%[^/]\+[/]\+%../%g'`$(srcdir)/$(notdir $@) $@
+	if [ ! -e $@  ]; then \
+          rm -rf $@ ; \
+	  if [ "`echo $(srcdir) | sed -e 's/^\/.*/yes/'`" = "yes" ]; then \
+	    ln -s `echo $(dir $@) | sed -e 's%[^/]\+[/]\+%%g'`$(srcdir)/$(notdir $@) $@ ; \
+	  else \
+	    ln -s `echo $(dir $@) | sed -e 's%[^/]\+[/]\+%../%g'`$(srcdir)/$(notdir $@) $@ ; \
+	  fi ; \
+	fi
 
 
 BUILT_SOURCES += $(DUMMYHEADERS) $(LINKS)
