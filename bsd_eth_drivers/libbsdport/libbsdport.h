@@ -359,6 +359,9 @@ pci_release_msi(device_t dev) { }
 
 #define if_link_state_change(ifp, state) do {} while (0)
 
+#define if_maddr_rlock(ifp) do {} while (0)
+#define if_maddr_runlock(ifp) do {} while (0)
+
 /* if_name should probably be const char * but isn't */
 #define if_initname(ifp, name, unit) \
 	do { (ifp)->if_name = (char*)(name); (ifp)->if_unit = (unit); } while (0)

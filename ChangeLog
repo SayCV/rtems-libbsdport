@@ -1,3 +1,24 @@
+2009-10-20	Chris Johns <chrisj@rtems.org>
+
+	* bsd_eth_drivers/libbsdport/sysbus.cL Fixed the print message for
+	no IRQ handler.
+	* bsd_eth_drivers/libbsdport/misc.c: Add m_defrag and what else it
+	needed. The RL driver needs it.
+	* bsd_eth_drivers/libbsdport/libbsdport_post.h: Remove the define
+	for m_defrag.
+	* bsd_eth_drivers/libbsdport/libbsdport.h: Add if_maddr_rlock and
+	if_maddr_runlock.
+	* bsd_eth_drivers/libbsdport/bus.h: Add the
+	bus_space_write_stream_4 call.
+	* bsd_eth_drivers/libbsdport/libbsdport_post.h,
+	bsd_eth_drivers/libbsdport/alldrv.c,
+	bsd_eth_drivers/if_re/Makefile.am: Add RL driver support.
+	* bsd_eth_drivers/if_re/if_re.c, bsd_eth_drivers/if_re/if_rlreg.h:
+	Updated to the lastest version.
+	* bsd_eth_drivers/if_re/if_rl.c: New. This is for the Realtek
+	8129/8139 PCI NIC while the RE driver does only the 8139C+
+	version.
+
 2009-05-13	Joel Sherrill <joel.sherrill@oarcorp.com>
 
 	* rtems-pre.am, m4/rtems-fixup-prefix.m4: Install in standard location.

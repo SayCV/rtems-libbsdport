@@ -9,6 +9,7 @@ driver_t *libbsdport_netdriver_table_all[] = {
 	&libbsdport_fxp_driver,
 	&libbsdport_bge_driver,
 	&libbsdport_re_driver,
+	&libbsdport_rl_driver,
 	0
 };
 
@@ -25,6 +26,8 @@ extern driver_t libbsdport_fxp_driver
 extern driver_t libbsdport_bge_driver
 	__attribute__((weak,alias("libbsdport_null_driver")));
 extern driver_t libbsdport_re_driver
+	__attribute__((weak,alias("libbsdport_null_driver")));
+extern driver_t libbsdport_rl_driver
 	__attribute__((weak,alias("libbsdport_null_driver")));
 
 

@@ -65,7 +65,6 @@ bus_space_write_##nwidth(bus_space_tag_t t, bus_space_handle_t h, bus_size_t o, 
 		*(volatile type __attribute__((may_alias)) *)(h+o) = v; \
 	}\
 }
-
 BUS_SPACE_DECL(u_int32_t, long, 4)
 BUS_SPACE_DECL(u_int16_t, word, 2)
 BUS_SPACE_DECL(u_int8_t,  byte, 1)
@@ -121,6 +120,8 @@ BUS_SPACE_DECL(u_int8_t,  byte, 1, 8)
 #error "Missing definitions of bus_space_XXX() for this CPU architecture"
 #endif
 
+#define bus_space_write_stream_4(_t, _h, _o, _v) \
+  bus_space_write_4(_t, _h, _o, htole32(_v))
 
 #undef BUS_SPACE_DECL
 

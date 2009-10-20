@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS=foreign
 
 include $(top_srcdir)/rtems-pre.am
 
-libif_re_a_SOURCES               = if_re.c if_rlreg.h
+libif_re_a_SOURCES               = if_re.c if_rl.c if_rlreg.h
 
 ##EXTRA_libif_re_a_SOURCES         = 
 

@@ -24,9 +24,6 @@
 #define IFF_DRV_RUNNING	IFF_RUNNING
 #define IFF_DRV_OACTIVE IFF_OACTIVE
 
-/* FIXME: should implement m_defrag() */
-#define m_defrag(m_headp, opt) NULL
-
 static inline struct mbuf *
 m_getcl(int how, int type, unsigned flags)
 {

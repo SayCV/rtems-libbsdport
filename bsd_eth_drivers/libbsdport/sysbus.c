@@ -187,7 +187,7 @@ struct irq_cookie *info = 0;
 			device_printf(dev, "bus_setup_intr: device has no driver attached\n");
 			return EINVAL;
 		} else if ( !dev->drv->methods->irq_check_dis ) {
-			device_printf(dev, "bus_setup_intr: driver has no 'irq_dis' method\n");
+			device_printf(dev, "bus_setup_intr: driver has no 'irq_check_dis' method\n");
 			return EINVAL;
 		}
 	}
