@@ -1,5 +1,9 @@
 2009-10-20	Joel Sherrill <joel.sherrill@OARcorp.com>
 
+	* libbsdport/alldrv.c: Revert.
+
+2009-10-20	Joel Sherrill <joel.sherrill@OARcorp.com>
+
 	* if_bge/if_bge.c, libbsdport/alldrv.c: Add local changes (untested).
 
 2009-09-12  Chris Johns <chrisj@rtems.org>
