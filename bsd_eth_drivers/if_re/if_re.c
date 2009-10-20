@@ -175,8 +175,10 @@ MODULE_DEPEND(re, miibus, 1, 1, 1);
 #endif
 
 /* Tunables. */
+#ifndef __rtems__
 static int msi_disable = 0;
 TUNABLE_INT("hw.re.msi_disable", &msi_disable);
+#endif
 static int prefer_iomap = 0;
 TUNABLE_INT("hw.re.prefer_iomap", &prefer_iomap);
 
