@@ -1,3 +1,34 @@
+2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/libbsdport_post.h: added missing declaration
+	of m_defrag() (Chris replaced the dummy #define a while
+	ago and provided an implementation instead [thanks!] but
+	we also need a declaration).
+
+2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/ifmedia.c: fixed 'unused variable' warning
+	by removing unused var.
+
+2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* if_re/if_re.c: fixed 'unused variable' warning by
+	commenting via #ifndef __rtems__ (since code which uses
+	the 'msi_disable' var is commented the same way).
+
+2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* if_pcn/if_pcn.c: fixed 'type-punned pointer' warning.
+	Use 'memcpy' to copy 2 bytes to a short. This requires
+	another #ifdef __rtems__, however.
+
+2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* if_bge/if_bge.c: bge_intr must be passed as a 'handler'
+	to bus_setup_intr(). However, the irq_check_dis and irq_enable
+	methods seem to still be skeletons so this driver won't work...
+	(I have no hardware or emulation available to test).
+	
 2009-10-20	Joel Sherrill <joel.sherrill@OARcorp.com>
 
 	* libbsdport/alldrv.c: Revert.

@@ -2829,7 +2829,7 @@ again:
 	 */
 #if defined(__rtems__)
 	error = bus_setup_intr(dev, sc->bge_irq, INTR_TYPE_NET | INTR_MPSAFE,
-	    bge_intr, NULL, sc, &sc->bge_intrhand);
+	    NULL, bge_intr, sc, &sc->bge_intrhand);
 #elif (__FreeBSD_version > 700030)
 	error = bus_setup_intr(dev, sc->bge_irq, INTR_TYPE_NET | INTR_MPSAFE,
 	   NULL, bge_intr, sc, &sc->bge_intrhand);
