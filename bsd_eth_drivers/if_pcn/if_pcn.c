@@ -1509,7 +1509,6 @@ pcn_init_locked(sc)
 #ifndef __rtems__
 	mii = device_get_softc(sc->pcn_miibus);
 	ife = mii->mii_media.ifm_cur;
-#endif
 
 	/* Set MAC address */
 	{ unsigned tmp;
@@ -1521,6 +1520,22 @@ pcn_init_locked(sc)
 	tmp = htole16(((u_int16_t *)IF_LLADDR(sc->pcn_ifp))[2]);
 	pcn_csr_write(sc, PCN_CSR_PAR2, tmp);
 	}
+#else
+	/* Set MAC address */
+	{ unsigned tmp;
+	u_int16_t  s;
+	/* fix endinanness; LLADDR gets swapped on a BE machine */
+	memcpy(&s, IF_LLADDR(sc->pcn_ifp) + 0, sizeof(s));
+	tmp = htole16(s);
+	pcn_csr_write(sc, PCN_CSR_PAR0, tmp);
+	memcpy(&s, IF_LLADDR(sc->pcn_ifp) + 2, sizeof(s));
+	tmp = htole16(s);
+	pcn_csr_write(sc, PCN_CSR_PAR1, tmp);
+	memcpy(&s, IF_LLADDR(sc->pcn_ifp) + 4, sizeof(s));
+	tmp = htole16(s);
+	pcn_csr_write(sc, PCN_CSR_PAR2, tmp);
+	}
+#endif
 
 	/* Init circular RX list. */
 	if (pcn_list_rx_init(sc) == ENOBUFS) {
