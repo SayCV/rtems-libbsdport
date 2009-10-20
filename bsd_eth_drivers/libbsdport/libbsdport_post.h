@@ -103,3 +103,18 @@ ether_setaddr(struct ifnet *ifp, u_int8_t *eaddr);
  */
 int
 rtems_mii_phy_probe(struct rtems_mdio_info *mdio, void *if_softc);
+
+/*
+ * Defragment a mbuf chain, returning the shortest possible
+ * chain of mbufs and clusters.  If allocation fails and
+ * this cannot be completed, NULL will be returned, but
+ * the passed in chain will be unchanged.  Upon success,
+ * the original chain will be freed, and the new chain
+ * will be returned.
+ *
+ * If a non-packet header is passed in, the original
+ * mbuf (chain?) will be returned unharmed.
+ */
+struct mbuf *
+m_defrag(struct mbuf *m0, int how);
+
