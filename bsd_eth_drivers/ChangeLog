@@ -1,5 +1,14 @@
 2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
 
+	* libbsdport/libbsdport.h, if_em/e1000_osdep.h:
+	We need __BSD_VISIBLE defined. Some things in the rtems headers
+	changed with 4.10 (can't pinpoint the details). We now
+	#define __INSIDE_RTEMS_BSD_TCPIP_STACK__ before explicitly
+	including <rtems/rtems_bsdnet.h> and this seemed to fix
+	things for 4.10.
+
+2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
+
 	* libbsdport/libbsdport_post.h: added missing declaration
 	of m_defrag() (Chris replaced the dummy #define a while
 	ago and provided an implementation instead [thanks!] but

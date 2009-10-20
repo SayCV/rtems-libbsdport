@@ -2,13 +2,18 @@
 #define RTEMS_COMPAT_DEFS_H
 
 #include <rtems.h>
-#include <sys/param.h>
 
 #ifndef _KERNEL
 #define _KERNEL
 #endif
+#ifndef __INSIDE_RTEMS_BSD_TCPIP_STACK__
+#define __INSIDE_RTEMS_BSD_TCPIP_STACK__
+#endif
+
 #include <rtems/rtems_bsdnet.h>
 #include <rtems/rtems_bsdnet_internal.h>
+
+#include <sys/param.h>
 
 #include <inttypes.h>
 #include <string.h>

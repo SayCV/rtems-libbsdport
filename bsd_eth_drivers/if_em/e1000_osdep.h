@@ -42,6 +42,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <vm/vm.h> /* for non-_KERNEL boolean_t :-( */
 
 #ifdef   _KERNEL
+#ifndef __INSIDE_RTEMS_BSD_TCPIP_STACK__
+#define __INSIDE_RTEMS_BSD_TCPIP_STACK__
+#endif
+#include <rtems/rtems_bsdnet.h>
 #include <rtems/rtems_bsdnet_internal.h>
 
 #include <sys/types.h>
