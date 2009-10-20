@@ -2712,6 +2712,13 @@ bge_attach(device_t dev)
 	ifp->if_capabilities |= IFCAP_POLLING;
 #endif
 
+#ifdef __rtems__
+	taskqueue_create_fast("re_taskq", M_NOWAIT,
+	    taskqueue_thread_enqueue, &taskqueue_fast);
+	taskqueue_start_threads(&taskqueue_fast, 1, PI_NET, "%s taskq",
+	    device_get_nameunit(dev));
+#endif
+
 	/*
 	 * 5700 B0 chips do not support checksumming correctly due
 	 * to hardware bugs.
@@ -2820,7 +2827,10 @@ again:
 	/*
 	 * Hookup IRQ last.
 	 */
-#if (__FreeBSD_version > 700030) || defined(__rtems__)
+#if defined(__rtems__)
+	error = bus_setup_intr(dev, sc->bge_irq, INTR_TYPE_NET | INTR_MPSAFE,
+	    bge_intr, NULL, sc, &sc->bge_intrhand);
+#elif (__FreeBSD_version > 700030)
 	error = bus_setup_intr(dev, sc->bge_irq, INTR_TYPE_NET | INTR_MPSAFE,
 	   NULL, bge_intr, sc, &sc->bge_intrhand);
 #else

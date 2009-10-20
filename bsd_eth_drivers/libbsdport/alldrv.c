@@ -15,6 +15,7 @@ driver_t *libbsdport_netdriver_table_all[] = {
 
 driver_t libbsdport_null_driver = {0};
 
+#if 0
 extern driver_t libbsdport_em_driver
 	__attribute__((weak,alias("libbsdport_null_driver")));
 extern driver_t libbsdport_pcn_driver
@@ -29,6 +30,7 @@ extern driver_t libbsdport_re_driver
 	__attribute__((weak,alias("libbsdport_null_driver")));
 extern driver_t libbsdport_rl_driver
 	__attribute__((weak,alias("libbsdport_null_driver")));
+#endif
 
 
 /* weak alias defaults to a table that includes
