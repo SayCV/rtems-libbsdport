@@ -53,7 +53,7 @@ struct ifmedia_entry *ifmen, *ifmep, *ifme;
 void
 ifmedia_removeall(struct ifmedia *ifm)
 {
-struct ifmedia_entry *ifmen, *ifmep, *ifme;
+struct ifmedia_entry *ifmen, *ifmep;
 		for ( ifmep = LIST_FIRST(&ifm->ifm_list); ifmep; ifmep = ifmen ) {
 			ifmen = LIST_NEXT(ifmep, ifm_list);
 			free(ifmep, M_DEVBUF);
