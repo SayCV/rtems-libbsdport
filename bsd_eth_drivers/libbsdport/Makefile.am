@@ -51,25 +51,3 @@ include ../links.am
 # after OBJECTS are made :-(
 $(libbsdport_a_OBJECTS): $(DUMMYHEADERS) $(LINKS)
 
-if FALSE
-CLOBBER_ADDITIONS  =
-CLOBBER_ADDITIONS += $(srcdir)/dummyheaders
-CLOBBER_ADDITIONS += $(addprefix $(srcdir)/,$(sort $(foreach n,$(LINKS),$(firstword $(subst /, ,$(n))))))
-
-dummyheaders/%:
-	@if [ ! -d $(srcdir)/`dirname $@` ] ; then mkdir -p $(srcdir)/`dirname $@`; fi
-	@touch $(srcdir)/$@
-
-# for each name listed in LINKS, create parent directories (if needed)
-# and a symlink to file in .
-# E.g., LINKS=a/b/c.h
-# creates a/b/c.h -> ../../c.h
-$(LINKS):
-	@if [ ! -d $(srcdir)/$(dir $@) ] ; then mkdir -p $(srcdir)/$(dir $@); fi
-	@ln -s `echo $@ | sed -e 's%[^/]\+[/]\+%../%g'` $(srcdir)/$@
-
-
-distclean-local:
-	$(RM) -r $(CLOBBER_ADDITIONS)
-endif
-

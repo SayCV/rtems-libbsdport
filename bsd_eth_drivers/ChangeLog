@@ -1,3 +1,8 @@
+2010-02-12  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/Makefile.am: Removed obsolete (and commented)
+	stuff.
+
 2009-10-20  Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* libbsdport/libbsdport.h, if_em/e1000_osdep.h:
