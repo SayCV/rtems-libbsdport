@@ -1,3 +1,7 @@
+2010-03-07  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* links.am: POSIXified sed commands for sake of portability.
+
 2010-02-12  Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* libbsdport/Makefile.am: Removed obsolete (and commented)
