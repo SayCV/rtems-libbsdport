@@ -145,7 +145,7 @@ get_name_unit(const char *drvnam, char *nm, int *punit)
 int l = strlen(drvnam);
 int i;
 	if ( l > 0 ) {
-		for ( i=l-1; i>=0 && isdigit(drvnam[i]); i-- )
+		for ( i=l-1; i>=0 && isdigit(((unsigned char)drvnam[i])); i-- )
 			/* nothing else to do */;
 		if ( 1 != sscanf(drvnam+i,"%d",punit) )
 			*punit = 0; /* wildcard */
