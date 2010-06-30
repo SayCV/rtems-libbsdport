@@ -86,16 +86,16 @@ bus_space_barrier(bus_space_tag_t t, bus_space_handle_t h, bus_size_t o, int wid
 }
 
 
-#define BUS_SPACE_DECL(type, width, nwidth, op) \
+#define BUS_SPACE_DECL(type, iotype, width, nwidth, op) \
 static inline type \
 bus_space_read_##nwidth(bus_space_tag_t t, bus_space_handle_t h, bus_size_t o) \
 { \
 type v; \
 	if ( !BUS_SPACE_ALWAYS_MEM && bus_space_io == t ) { \
 		/* this is a macro setting the second argument */ \
-		v = in_##op((volatile type *)(_IO_BASE+h+o)); \
+		v = in_##op((volatile iotype *)(_IO_BASE+h+o)); \
 	} else { \
-		v = in_##op((volatile type *)(h+o)); \
+		v = in_##op((volatile iotype *)(h+o)); \
 	} \
 	return v; \
 } \
@@ -104,15 +104,15 @@ static inline void \
 bus_space_write_##nwidth(bus_space_tag_t t, bus_space_handle_t h, bus_size_t o, type v) \
 { \
 	if ( !BUS_SPACE_ALWAYS_MEM && bus_space_io == t ) { \
-		out_##op((volatile type *)(_IO_BASE+h+o), v); \
+		out_##op((volatile iotype *)(_IO_BASE+h+o), v); \
 	} else { \
-		out_##op((volatile type *)(h+o), v); \
+		out_##op((volatile iotype *)(h+o), v); \
 	}\
 }
 
-BUS_SPACE_DECL(u_int32_t, long, 4, le32)
-BUS_SPACE_DECL(u_int16_t, word, 2, le16)
-BUS_SPACE_DECL(u_int8_t,  byte, 1, 8)
+BUS_SPACE_DECL(u_int32_t, unsigned,       long, 4, le32)
+BUS_SPACE_DECL(u_int16_t, unsigned short, word, 2, le16)
+BUS_SPACE_DECL(u_int8_t,  unsigned char,  byte, 1, 8)
 
 #undef BUS_SPACE_ALWAYS_MEM
 
