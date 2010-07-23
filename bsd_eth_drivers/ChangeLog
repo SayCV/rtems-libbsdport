@@ -1,3 +1,7 @@
+2010-07-23  Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/devicet.c: Initialize libbspExt.
+
 2010-06-30  Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* libbsdport/bus.h: PPC's inlines from libcpu/io.h still have

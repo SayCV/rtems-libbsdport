@@ -1,5 +1,9 @@
 #define DEVICET_EXTERN_INLINE
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "devicet.h"
 #include <rtems/rtems_bsdnet.h>
 #include <sys/malloc.h>
@@ -11,6 +15,10 @@
 #include <rtems/error.h>
 #include <sys/bus.h>
 #include "libbsdport_api.h"
+
+#ifdef HAVE_LIBBSPEXT
+#include <bsp/bspExt.h>
+#endif
 
 #define  DEBUG 0
 int libbsdportAttachVerbose = DEBUG;
@@ -252,6 +260,10 @@ int      n_bus;
 
 		if ( !attaching )
 			return ENOTSUP;
+
+#ifdef HAVE_LIBBSPEXT
+		bspExtInit();
+#endif
 
 		if ( (wantedunit = get_pci_triple(cfg->name)) < 0 ) {
 			get_name_unit(cfg->name, nm, &wantedunit);
