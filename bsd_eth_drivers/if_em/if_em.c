@@ -441,6 +441,18 @@ em_probe(device_t dev)
 
 	INIT_DEBUGOUT("em_probe: begin");
 
+#ifdef __rtems__
+	/* copy PCI signature to the low-level (bsd-agnostic) support
+	 * struct.
+	 */
+	{
+	struct adapter *adapter = device_get_softc(dev);
+		adapter->osdep.pcisig.bus = dev->bushdr.pci.bus;
+		adapter->osdep.pcisig.dev = dev->bushdr.pci.dev;
+		adapter->osdep.pcisig.fun = dev->bushdr.pci.fun;
+	}
+#endif
+
 	pci_vendor_id = pci_get_vendor(dev);
 	if (pci_vendor_id != EM_VENDOR_ID)
 		return (ENXIO);
@@ -4782,6 +4794,7 @@ em_is_valid_ether_addr(uint8_t *addr)
 	return (TRUE);
 }
 
+#ifndef __rtems__
 /*
  * NOTE: the following routines using the e1000 
  * 	naming style are provided to the shared
@@ -4864,6 +4877,7 @@ e1000_free_dev_spec_struct(struct e1000_hw *hw)
 		free(hw->dev_spec, M_DEVBUF);
 	return;
 }
+#endif
 
 /*
  * Enable PCI Wake On Lan capability

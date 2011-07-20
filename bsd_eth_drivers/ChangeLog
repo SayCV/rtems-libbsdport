@@ -1,4 +1,14 @@
-2010-07-23  Till Straumann <Till.Straumann@TU-Berlin.de>
+2011-07-20 Till Straumann <Till.Straumann@TU-Berlin.de>
+	
+	* if_em/Makefile.am, if_em/e1000_osdep.h, if_em/e1000_osdep.c,
+	if_em/if_em.c: added e1000_osdep.c which implements all
+	os-dependent parts in a bsdnet-agnostic fashion. Hence, the
+	low-level driver can be used w/o bsdnet.
+	FIXES: dependency on bsdnet initialization; PCI bus header
+	was not initialized when not used via bsdnet (lanIpBasic driver
+	crashed).
+
+2010-07-23 Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* libbsdport/devicet.c: Initialize libbspExt.
 

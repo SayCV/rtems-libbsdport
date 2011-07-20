@@ -41,31 +41,13 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <rtems/pci.h>
 #include <vm/vm.h> /* for non-_KERNEL boolean_t :-( */
 
-#ifdef   _KERNEL
-#ifndef __INSIDE_RTEMS_BSD_TCPIP_STACK__
-#define __INSIDE_RTEMS_BSD_TCPIP_STACK__
-#endif
-#include <rtems/rtems_bsdnet.h>
-#include <rtems/rtems_bsdnet_internal.h>
-
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/systm.h>
-#include <sys/mbuf.h>
-#include <sys/protosw.h>
-#include <sys/socket.h>
-#include <sys/malloc.h>
-#include <sys/kernel.h>
-#include <sys/bus.h>
-
-#define ASSERT(x) if(!(x)) panic("EM: x")
-
 /* The happy-fun DELAY macro is defined in /usr/src/sys/i386/include/clock.h */
-#define usec_delay(x) DELAY(x)
-#define msec_delay(x) DELAY(1000*(x))
+#define usec_delay(x) e1000_udelay(x)
+#define msec_delay(x) e1000_udelay(1000*(x))
 /* TODO: Should we be paranoid about delaying in interrupt context? */
-#define msec_delay_irq(x) DELAY(1000*(x))
-#include <rtems_udelay.h>
+#define msec_delay_irq(x) msec_delay(x)
+
+void e1000_udelay(unsigned);
 
 #define MSGOUT(S, A, B)     printf(S "\n", A, B)
 #define DEBUGFUNC(F)        DEBUGOUT(F);
@@ -75,22 +57,8 @@ POSSIBILITY OF SUCH DAMAGE.
 	#define DEBUGOUT3(S,A,B,C)
 	#define DEBUGOUT7(S,A,B,C,D,E,F,G)
 
-#include <devicet.h>
-
-struct e1000_osdep
-{
-	uint32_t mem_bus_space_handle;
-	uint32_t io_bus_space_handle;
-	uint32_t flash_bus_space_handle;
-	/* these are currently unused; present for freebsd compatibility only */
-	uint32_t mem_bus_space_tag;
-	uint32_t io_bus_space_tag;
-	uint32_t flash_bus_space_tag;
-	device_t dev;	
-};
 
 #define STATIC				static
-#endif
 
 #ifndef FALSE
 #define FALSE               0
@@ -117,6 +85,12 @@ typedef int8_t		s8 ;
 
 typedef volatile uint32_t __uint32_va_t __attribute__((may_alias));
 typedef volatile uint16_t __uint16_va_t __attribute__((may_alias));
+
+struct e1000_pcisig {
+	uint16_t bus;
+	uint8_t  dev;
+	uint8_t  fun;
+};
 
 #ifdef NO_82542_SUPPORT
 #define E1000_REGISTER(hw, reg) reg
@@ -216,6 +190,49 @@ static inline void __outport_dword(unsigned long base, uint32_t off, uint32_t va
 #else
 #warning "not ported to this CPU architecture yet -- using libbsdport I/O"
 #define  USE_LIBBSDPORT_IO
+#endif
+
+#if defined(USE_LIBBSDPORT_IO) && !defined(_KERNEL)
+#define _KERNEL
+#endif
+
+#ifdef   _KERNEL
+#ifndef __INSIDE_RTEMS_BSD_TCPIP_STACK__
+#define __INSIDE_RTEMS_BSD_TCPIP_STACK__
+#endif
+#include <rtems/rtems_bsdnet.h>
+#include <rtems/rtems_bsdnet_internal.h>
+
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/mbuf.h>
+#include <sys/protosw.h>
+#include <sys/socket.h>
+#include <sys/malloc.h>
+#include <sys/kernel.h>
+#include <sys/bus.h>
+
+#define ASSERT(x) if(!(x)) panic("EM: x")
+
+#include <devicet.h>
+
+struct e1000_osdep
+{
+	/* struct e1000_pcisig MUST be first since
+	 * 'back' pointer is cast to (struct e1000_pcisig *)
+	 * in e1000_osdep.c!
+	 */
+	struct e1000_pcisig pcisig;
+	uint32_t mem_bus_space_handle;
+	uint32_t io_bus_space_handle;
+	uint32_t flash_bus_space_handle;
+	/* these are currently unused; present for freebsd compatibility only */
+	uint32_t mem_bus_space_tag;
+	uint32_t io_bus_space_tag;
+	uint32_t flash_bus_space_tag;
+	device_t dev;	
+};
 #endif
 
 #ifdef USE_LIBBSDPORT_IO
