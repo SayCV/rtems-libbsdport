@@ -441,18 +441,6 @@ em_probe(device_t dev)
 
 	INIT_DEBUGOUT("em_probe: begin");
 
-#ifdef __rtems__
-	/* copy PCI signature to the low-level (bsd-agnostic) support
-	 * struct.
-	 */
-	{
-	struct adapter *adapter = device_get_softc(dev);
-		adapter->osdep.pcisig.bus = dev->bushdr.pci.bus;
-		adapter->osdep.pcisig.dev = dev->bushdr.pci.dev;
-		adapter->osdep.pcisig.fun = dev->bushdr.pci.fun;
-	}
-#endif
-
 	pci_vendor_id = pci_get_vendor(dev);
 	if (pci_vendor_id != EM_VENDOR_ID)
 		return (ENXIO);
@@ -471,6 +459,22 @@ em_probe(device_t dev)
 
 		    ((pci_subdevice_id == ent->subdevice_id) ||
 		    (ent->subdevice_id == PCI_ANY_ID))) {
+#ifdef __rtems__
+			/* Copy PCI signature to the low-level (bsd-agnostic)
+			 * support struct and register with ll-support. This
+			 * step also detects if the device is already in use.
+			 */
+			{
+				struct adapter *adapter = device_get_softc(dev);
+
+				if ( e1000_register( &adapter->osdep.pcisig,
+				                     dev->bushdr.pci.bus,
+				                     dev->bushdr.pci.dev,
+				                     dev->bushdr.pci.fun ) ) {
+					return (EBUSY);
+				}
+			}
+#endif
 			sprintf(adapter_name, "%s %s",
 				em_strings[ent->index],
 				em_driver_version);
@@ -835,6 +839,10 @@ err_pci:
 	em_free_pci_resources(adapter);
 	EM_LOCK_DESTROY(adapter);
 
+#ifdef __rtems__
+	e1000_unregister( &adapter->osdep.pcisig );
+#endif
+
 	return (error);
 }
 
@@ -909,6 +917,10 @@ em_detach(device_t dev)
 	}
 
 	EM_LOCK_DESTROY(adapter);
+
+#ifdef __rtems__
+	e1000_unregister( &adapter->osdep.pcisig );
+#endif
 
 	return (0);
 }

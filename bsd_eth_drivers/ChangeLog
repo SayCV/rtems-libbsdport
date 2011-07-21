@@ -1,3 +1,11 @@
+2011-07-21 Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* if_em/e1000_osdep.h, if_em/e1000_osdep.c, if_em/if_em.c:
+	added e1000_register()/e1000_unregister() to keep track of
+	devices that are 'in-use'. This allows for sharing the low-level
+	code between bsdnet and standalone drivers (e.g., for PtP
+	GigE links).
+
 2011-07-20 Till Straumann <Till.Straumann@TU-Berlin.de>
 	
 	* if_em/Makefile.am, if_em/e1000_osdep.h, if_em/e1000_osdep.c,

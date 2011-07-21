@@ -87,10 +87,19 @@ typedef volatile uint32_t __uint32_va_t __attribute__((may_alias));
 typedef volatile uint16_t __uint16_va_t __attribute__((may_alias));
 
 struct e1000_pcisig {
-	uint16_t bus;
-	uint8_t  dev;
-	uint8_t  fun;
+	uint32_t sig;
 };
+
+/* Register an instance; if this returns nonzero
+ * then registration failed and the device with
+ * the pci signature passed in MUST NOT be used
+ * (since it is already in use by another driver).
+ */
+int
+e1000_register(struct e1000_pcisig *sig_p_out, unsigned bus, unsigned dev, unsigned fun);
+
+void
+e1000_unregister(struct e1000_pcisig *sig_p);
 
 #ifdef NO_82542_SUPPORT
 #define E1000_REGISTER(hw, reg) reg
