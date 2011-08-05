@@ -1,3 +1,9 @@
+2011-08-04 Till Straumann <Till.Straumann@TU-Berlin.de>
+
+	* libbsdport/devicet.h, libbsdport/ifmedia.c: rtems-4.11 moved
+	<queue.h>, and <cdefs.h> to newlib. Added a version-test macro
+	to catch this case.
+
 2011-07-21 Till Straumann <Till.Straumann@TU-Berlin.de>
 
 	* if_em/e1000_osdep.h, if_em/e1000_osdep.c, if_em/if_em.c:

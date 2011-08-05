@@ -22,6 +22,8 @@ LINKS+=sys/taskqueue.h
 LINKS+=sys/bus.h
 LINKS+=sys/mutex.h
 LINKS+=bsp/rtems_verscheck.h
+#LINKS+=rtems/bsd/sys/queue.h
+#LINKS+=rtems/bsd/sys/cdefs.h
 
 DUMMYHEADERS =
 DUMMYHEADERS+=dummyheaders/machine/bus.h

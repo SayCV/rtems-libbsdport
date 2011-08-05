@@ -5,7 +5,7 @@
 
 #include <bsp/rtems_verscheck.h>
 
-#if RTEMS_REV_AT_LEAST(4,8,99)
+#if RTEMS_REV_AT_LEAST(4,8,99) && !RTEMS_REV_AT_LEAST(4,10,99)
 #include <rtems/bsd/sys/queue.h>
 #else
 #include <sys/queue.h>
