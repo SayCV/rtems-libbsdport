@@ -158,7 +158,9 @@ rtems_id          me;
 	rtems_timer_fire_after(ticker, 1, calloutTick, (void*)me);
 
 	while ( 1 ) {
-		sc = rtems_bsdnet_event_receive (CALLOUT_EVENT | KILL_EVENT, RTEMS_EVENT_ANY | RTEMS_WAIT, RTEMS_NO_TIMEOUT, &ev);
+		rtems_bsdnet_semaphore_release ();
+		sc = rtems_event_receive (CALLOUT_EVENT | KILL_EVENT, RTEMS_EVENT_ANY | RTEMS_WAIT, RTEMS_NO_TIMEOUT, &ev);
+		rtems_bsdnet_semaphore_obtain ();
 		if ( RTEMS_SUCCESSFUL != sc ) {
 			rtems_error(sc, "calloutTask: unable to receive event; terminating\n");
 			break;
